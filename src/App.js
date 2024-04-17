@@ -1,24 +1,27 @@
-import logo from './logo.svg';
+import SignUp from './pages/SignUp.js';
+
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    
+    <>
+      <SignUp />
+    </>
+  //   <Router>
+  //   <Routes>
+  //     <Route exact path="/" element={<Blog />} />
+  //     <Route path="/User/:UserId" element={<BlogUser />} />
+  //     <Route path="/create-post" element={<Write/>} />
+  //     <Route path="/read-post" element={<SinglePost/>} />
+  //     <Route path="/read-post-user" element={<SinglePostUser/>} />
+  //     <Route path="/signin" element={<SignInSide/>} />
+  //     <Route path="/signup" element={<SignUp/>} />
+  //     <Route path="/userlist" element={<UserDetails/>} />
+  //     <Route path="/academicBlogs" element={<AcademicBlogs />} />
+  //   </Routes>
+  // </Router>
+    
   );
 }
 
