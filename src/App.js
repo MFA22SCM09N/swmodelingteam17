@@ -1,27 +1,35 @@
 import SignUp from './pages/SignUp.js';
+import SignIn from './pages/SignIn.js';
+import { Route, BrowserRouter } from 'react-router-dom';
+import { Routes } from 'react-router-dom';
+import Dashboard from './pages/Dashboard.js';
 
-import './App.css';
 
 function App() {
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn');
   return (
-    
-    <>
-      <SignUp />
-    </>
-  //   <Router>
-  //   <Routes>
-  //     <Route exact path="/" element={<Blog />} />
-  //     <Route path="/User/:UserId" element={<BlogUser />} />
-  //     <Route path="/create-post" element={<Write/>} />
-  //     <Route path="/read-post" element={<SinglePost/>} />
-  //     <Route path="/read-post-user" element={<SinglePostUser/>} />
-  //     <Route path="/signin" element={<SignInSide/>} />
-  //     <Route path="/signup" element={<SignUp/>} />
-  //     <Route path="/userlist" element={<UserDetails/>} />
-  //     <Route path="/academicBlogs" element={<AcademicBlogs />} />
-  //   </Routes>
-  // </Router>
-    
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<SignIn />
+            }
+          ></Route>
+          <Route
+            path="/signup"
+            element={<SignUp />
+            }
+          ></Route>
+          {isLoggedIn && <Route
+            path="/dashboard"
+            element={<Dashboard />
+            }
+          ></Route>}
+        </Routes>
+      </BrowserRouter>
+    </div>
+
   );
 }
 
