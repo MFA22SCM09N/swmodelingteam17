@@ -1,3 +1,24 @@
+To run the app:
+
+npm install
+
+npx create-react-app my-react-project
+
+npm install @mui/material @emotion/react @emotion/styled
+
+npm install @mui/material @mui/styled-engine-sc styled-components
+
+npm install @fontsource/roboto
+
+npm install @mui/icons-material
+
+npm install eslint --save-dev 
+
+npm uninstall eslint -g
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
