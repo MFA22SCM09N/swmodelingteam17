@@ -38,7 +38,7 @@ export default function SignIn() {
         event.preventDefault();
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         if (isLoggedIn === "") {
-            alert("user already logged in.")
+            alert("User already logged in.")
             return
         }
         const users = JSON.parse(localStorage.getItem('userDetails')) || [];
@@ -94,7 +94,7 @@ export default function SignIn() {
                             autoComplete="email"
                             value={email}
                             helperText="Valid hawk or gmail id"
-                            inputProps={{ pattern: "^[a-zA-Z0-9]+@(hawk.iit.edu|gmail.com)$" }}
+                            inputProps={{ pattern: "^[a-zA-Z.0-9]+@(hawk.iit.edu|gmail.com)$" }}
                             onChange={(event, data) => { setEmail(event.target.value) }}
                         />
                         <TextField

@@ -30,7 +30,7 @@ export default function SignUp() {
   const [lastname, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [user, setUserType] = useState("User");
+  const [role, setRole] = useState("User");
 
 
   const handleSubmit = (event) => {
@@ -50,7 +50,7 @@ export default function SignUp() {
       email: email,
       gender: gender,
       age: age,
-      user: user,
+      role: role,
       password: CryptoJS.AES.encrypt(password, 'secret_key_here_lol').toString()
     };
 
@@ -149,74 +149,78 @@ export default function SignUp() {
                     autoComplete="email"
                     value={email}
                     helperText="Valid hawk or gmail id"
-                    inputProps={{ pattern: "^[a-zA-Z0-9]+@(hawk.iit.edu|gmail.com)$" }}
+                    inputProps={{ pattern: "^[a-zA-Z.0-9]+@(hawk.iit.edu|gmail.com)$" }}
                     onChange={(event, data) => { setEmail(event.target.value) }}
                   />
                 </Grid>
 
                 {/* Gender */}
-                <Grid item xs={12} sm={6}>
-                  <FormControl sx={{ m: 1, minWidth: 100 }}>
-                    <InputLabel id="gender-select-autowidth-label">Gender</InputLabel>
-                    <Select
-                      labelId="gender-label"
-                      id="gender"
-                      name='gender'
-                      onChange={(event, data) => { setGender(event.target.value) }}
-                      label="Gender"
-                      fullWidth
-                      value={gender}
-                      required
-                    >
-                      <MenuItem value=""><em>None</em></MenuItem>
-                      <MenuItem value={"Male"}>Male</MenuItem>
-                      <MenuItem value={"Female"}>Female</MenuItem>
-                    </Select>
-                  </FormControl>
+                <Grid item xs={12} sm={4}>
+                  <Box display="flex" justifyContent="left" alignItems="center" height="100%">
+                    <FormControl sx={{ m: 1, minWidth: 100 }}>
+                      <InputLabel id="gender-select-autowidth-label">Gender</InputLabel>
+                      <Select
+                        labelId="gender-label"
+                        id="gender"
+                        name='gender'
+                        onChange={(event, data) => { setGender(event.target.value) }}
+                        label="Gender"
+                        fullWidth
+                        value={gender}
+                        required
+                      >
+                        <MenuItem value={"Male"}>Male</MenuItem>
+                        <MenuItem value={"Female"}>Female</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </Grid>
 
                 {/* User Type */}
-                <Grid item xs={12} sm={6}>
-                  <FormControl sx={{ m: 1, minWidth: 100 }}>
-                    <InputLabel id="user-select-autowidth-label">User Type</InputLabel>
-                    <Select
-                      labelId="user-label"
-                      id="user"
-                      name='user'
-                      value={user}
-                      onChange={(event, data) => { setUserType(event.target.value) }}
-                      label="User Type"
-                      fullWidth
-                      required
-                    >
-                      <MenuItem value=""><em>None</em></MenuItem>
-                      <MenuItem value={"User"}>User</MenuItem>
-                      <MenuItem value={"Event Provider"}>Event Provider</MenuItem>
-                      <MenuItem value={"System Admin"}>System Admin</MenuItem>
-                      <MenuItem value={"Content Moderator"}>Content Moderator</MenuItem>
-                    </Select>
-                  </FormControl>
+                <Grid item xs={12} sm={4}>
+                  <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                    <FormControl sx={{ m: 1, minWidth: 100 }}>
+                      <InputLabel id="role-select-autowidth-label">Role</InputLabel>
+                      <Select
+                        labelId="role-label"
+                        id="role"
+                        name='role'
+                        value={role}
+                        onChange={(event, data) => { setRole(event.target.value) }}
+                        label="Role"
+                        fullWidth
+                        required
+                      >
+                        <MenuItem value={"User"}>User</MenuItem>
+                        <MenuItem value={"Event Provider"}>Event Provider</MenuItem>
+                        <MenuItem value={"System Admin"}>System Admin</MenuItem>
+                        <MenuItem value={"Content Moderator"}>Content Moderator</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </Grid>
 
                 {/* Age */}
-                <Grid item xs={12} sm={6}>
-                  <FormControl sx={{ m: 1, minWidth: 100 }}>
-                    <InputLabel id="age-select-autowidth-label">Age</InputLabel>
-                    <Select
-                      labelId="age-label"
-                      id="age"
-                      value={age}
-                      label="Age"
-                      fullWidth
-                      onChange={(event, data) => { setAge(event.target.value) }}
-                      required
-                    >
-                      {[...Array(41).keys()].map((value) => {
-                        value += 10;
-                        return <MenuItem key={value} value={value}>{value}</MenuItem>
-                      })}
-                    </Select>
-                  </FormControl>
+                <Grid item xs={12} sm={4}>
+                  <Box display="flex" justifyContent="right" alignItems="center" height="100%">
+                    <FormControl sx={{ m: 1, minWidth: 100 }}>
+                      <InputLabel id="age-select-autowidth-label">Age</InputLabel>
+                      <Select
+                        labelId="age-label"
+                        id="age"
+                        value={age}
+                        label="Age"
+                        fullWidth
+                        onChange={(event, data) => { setAge(event.target.value) }}
+                        required
+                      >
+                        {[...Array(96).keys()].map((value) => {
+                          value += 5;
+                          return <MenuItem key={value} value={value}>{value}</MenuItem>
+                        })}
+                      </Select>
+                    </FormControl>
+                  </Box>
                 </Grid>
 
                 {/* Password */}
