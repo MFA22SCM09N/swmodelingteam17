@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Box, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import RecommendationButton from '../components/FetchRecommendation';
 
 function Dashboard() {
     const [loggedOut, setLoggedOut] = useState(false);
@@ -38,6 +39,7 @@ function Dashboard() {
             <Box my={2}>
                 <Typography variant="body1">Welcome to the dashboard!</Typography>
                 {/* Add more content here */}
+                <RecommendationButton />
             </Box>
 
             {/* Footer */}
