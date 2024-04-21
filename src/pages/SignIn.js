@@ -30,7 +30,7 @@ export default function SignIn() {
 
         // If isLoggedIn is true, redirect to /dashboard
         if (isLoggedIn === 'true') {
-            navigate('/dashboard');
+            navigate('/landing');
         }
     }, [navigate]);
 
@@ -45,11 +45,13 @@ export default function SignIn() {
 
         const user = users.find(user => user.email === email);
         if (user) {
+            console.log(user);
             var pass = (CryptoJS.AES.decrypt(user.password, 'secret_key_here_lol').toString(CryptoJS.enc.Utf8));
             if (pass === password) {
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('loggedUser', user.email);
-                window.location.href = "/dashboard";
+                sessionStorage.setItem('userRole',user.role);
+                window.location.href = "/";
             }
             else {
                 alert("Wrong Password!");
