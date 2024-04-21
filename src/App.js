@@ -2,7 +2,7 @@ import SignUp from './pages/SignUp.js';
 import SignIn from './pages/SignIn.js';
 import { Route, BrowserRouter } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
-import Dashboard from './pages/Dashboard.js';
+import Landing from './pages/landingPage/LandingPage.js';
 
 
 function App() {
@@ -21,11 +21,11 @@ function App() {
             element={<SignUp />
             }
           ></Route>
-          {isLoggedIn && <Route
-            path="/dashboard"
-            element={<Dashboard />
+          <Route
+            path="/landing"
+            element={<Landing />
             }
-          ></Route>}
+          ></Route>
         </Routes>
       </BrowserRouter>
     </div>

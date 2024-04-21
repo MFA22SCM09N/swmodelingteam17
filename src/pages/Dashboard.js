@@ -1,38 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Box, Container, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import RecommendationButton from '../components/FetchRecommendation';
 
 function Dashboard() {
     const [loggedOut, setLoggedOut] = useState(false);
-    const HandleLogout = (event) => {
+    const [userRole, setUserRole] = useState("");
+
+    console.log(userRole);
+
+    let navigate = useNavigate();
+
+    useEffect(() => {
+        // If isLoggedIn is false, redirect to /signin
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (isLoggedIn !== 'true') {
+            navigate('/signin');
+        }
+
+        // Get user role
+        const userRole = sessionStorage.getItem('userRole');
+        setUserRole(userRole);
+    }, [navigate]);
+
+    const handleLogout = (event) => {
         event.preventDefault();
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('loggedUser');
+        sessionStorage.removeItem('userRole');
         setLoggedOut(true);
+        navigate('/signin');
     };
 
-    let navigate = useNavigate();
-    useEffect(() => {
-        // If isLoggedIn is true, redirect to /
-        if (loggedOut === true) {
-            navigate('/');
-        }
-    }, [navigate, loggedOut]);
+    const handleManageUsers = () => {
+        
+    };
 
     return (
         <Container>
             {/* Header */}
             <Box display="flex" justifyContent="space-between" alignItems="center" py={2}>
                 <Typography variant="h4">Dashboard</Typography>
-                <Button
-                    type="submit"
-                    variant="contained"
-                    onClick={HandleLogout}
-                >
-                    Logout
-                </Button>
+                <Box sx={{ display: 'flex', gap: '10px' }}> 
+                    {userRole === "System Admin" && (
+                        <Button variant="contained" onClick={handleManageUsers}>
+                            Manage Users
+                        </Button>
+                    )}
+                    <Button variant="contained" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                </Box>
             </Box>
 
             {/* Body */}

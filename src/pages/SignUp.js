@@ -17,6 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CryptoJS from 'crypto-js';
+import { useNavigate } from "react-router-dom";
 
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -31,6 +32,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("User");
+  const navigate = useNavigate();
 
 
   const handleSubmit = (event) => {
@@ -58,6 +60,7 @@ export default function SignUp() {
 
     localStorage.setItem('userDetails', JSON.stringify(users));
     alert("User registered!");
+    navigate("/");
   };
 
   const handleCancel = (event) => {
@@ -65,6 +68,9 @@ export default function SignUp() {
     setAge(18);
 
   }
+
+ 
+
   const [showPassword, setShowPassword] = useState(false);
 
   const handleTogglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -132,7 +138,7 @@ export default function SignUp() {
                     label="Last Name"
                     name="lastName"
                     autoComplete="family-name"
-                    inputProps={{ pattern: "[a-zA-Z0-9]*" }} // Allow alphanumeric characters only
+                    inputProps={{ pattern: "[a-zA-Z0-9 ]*" }} // Allow alphanumeric characters only
                     value={lastname}
                     onChange={(event, data) => { setLastName(event.target.value) }}
                   />
@@ -171,6 +177,7 @@ export default function SignUp() {
                       >
                         <MenuItem value={"Male"}>Male</MenuItem>
                         <MenuItem value={"Female"}>Female</MenuItem>
+                        <MenuItem value={"Other"}>Other</MenuItem>
                       </Select>
                     </FormControl>
                   </Box>
