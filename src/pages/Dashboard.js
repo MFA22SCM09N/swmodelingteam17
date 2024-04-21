@@ -56,6 +56,7 @@ function Dashboard() {
             <Box my={2}>
                 <Typography variant="body1">Welcome to the dashboard!</Typography>
                 {/* Add more content here */}
+                <RecommendationButton />
             </Box>
 
             {/* Footer */}
