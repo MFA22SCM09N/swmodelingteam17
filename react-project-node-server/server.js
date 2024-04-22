@@ -28,7 +28,7 @@ app.get('/api', function(req, res) {
 });
 
 app.get('/getPopularEvents', async (req, res) => {
-  const { eventType, latitude, longitude, postal, city, radius, unit } = req.query;
+  const { eventType, latitude, longitude, postal, city, radius, unit , size} = req.query;
   try {
       const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
           params: {
@@ -42,7 +42,8 @@ app.get('/getPopularEvents', async (req, res) => {
               longitude: longitude,
               radius: radius,
               unit: unit,
-              city: city
+              city: city,
+              size: size,
           }
       });
       res.json(response.data);

@@ -52,7 +52,8 @@ const Events = () => {
             postal,
             city,
             '100',
-            'miles'
+            'miles',
+            "20"
           );
           const formattedSportEvents = sportEventResponse._embedded.events.reduce(
             (accumulator, event) => {
