@@ -56,7 +56,6 @@ const Events = () => {
           );
           const formattedSportEvents = sportEventResponse._embedded.events.reduce(
             (accumulator, event) => {
-              console.log(event);
               if (!event.name.toLowerCase().includes('tour')) {
               accumulator.push({
                 name: event.name,
@@ -84,7 +83,6 @@ const Events = () => {
             []
           );
           setEvents(formattedSportEvents.slice(0, 9));
-          console.log(formattedSportEvents);
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
