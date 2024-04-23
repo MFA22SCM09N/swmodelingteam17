@@ -29,7 +29,7 @@ async function getSportEventsCoordinates(currentLocation) {
             return [];
         }
 
-        const sportEventResponse = await fetchPopularEvents("Sports", currentLocation.latitude, currentLocation.longitude, currentLocation.postal, currentLocation.city, "1000", "miles", "100");
+        const sportEventResponse = await fetchPopularEvents("Sports", currentLocation.latitude, currentLocation.longitude, currentLocation.postal, currentLocation.city, "100", "miles", "100");
     
         const formattedSportEvents = sportEventResponse._embedded.events.reduce(
             (accumulator, event) => {

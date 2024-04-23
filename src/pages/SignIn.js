@@ -24,15 +24,7 @@ export default function SignIn() {
     const [password, setPassword] = useState("");
     let navigate = useNavigate();
 
-    useEffect(() => {
-        // Get isLoggedIn from Session Storage
-        let isLoggedIn = sessionStorage.getItem('isLoggedIn');
-
-        // If isLoggedIn is true, redirect to /dashboard
-        if (isLoggedIn === 'true') {
-            navigate('/landing');
-        }
-    }, [navigate]);
+  
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -51,7 +43,7 @@ export default function SignIn() {
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('loggedUser', user.email);
                 sessionStorage.setItem('userRole',user.role);
-                window.location.href = "/";
+                window.location.href = "/landing";
             }
             else {
                 alert("Wrong Password!");

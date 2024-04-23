@@ -217,15 +217,18 @@ function AppAppBar({ mode, toggleColorMode }) {
               }}
             >
               <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
+              </Box>
+              <Box>
               <Button
                 color="primary"
                 variant="contained"
                 size="small"
                 onClick={handleSignOut}
               >
-                Sign Out
+              Sign Out
               </Button>
-            </Box>
+              </Box>
+         
             <Box sx={{ display: { sm: '', md: 'none' } }}>
               <Button
                 variant="text"
