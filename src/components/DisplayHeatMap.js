@@ -58,11 +58,18 @@ async function getSportEventsCoordinates(currentLocation) {
 
 
 // Modal To display Google Map and Recommendation based on location and weather
-const RecommendationModal = () => {
+const DisplayHeatMap = (props) => {
   const [open, setOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [map, setMap] = useState(null);
   const [sportEventsCoordinates, setSportEventsCoordinates] = useState("");
+
+  useEffect(() => {
+    console.log(props.showHeatMap);
+    if(props.showHeatMap){
+      console.log('Heat map')
+      handleClick();
+    }}, [props.showHeatMap]);
 
   
 
@@ -206,20 +213,17 @@ const RecommendationModal = () => {
 
   return (
     <>
-      <Button variant="outlined" size="small" color="primary" onClick={handleClick}>
-        Display Heat Map
-      </Button>
-      <Modal open={open} onClose={handleClose} >
-        <Box sx={{ position: 'fixed', top: '60%', left: '71%', transform: 'translate(-50%, -50%)', width: 520, height: 590, bgcolor: 'background.paper', boxShadow: 24, p: 4, overflow: 'auto' }}>
+      
+        
           <div
             id="google-map"
             style={{ width: '520', height: '600px' }} // Adjust height as needed
           ></div>
-        </Box>
-      </Modal>
+
+
     </>
   );
 };
 
-export default RecommendationModal;
+export default DisplayHeatMap;
 
