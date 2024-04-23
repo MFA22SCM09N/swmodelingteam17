@@ -3,6 +3,7 @@ import SignIn from './pages/SignIn.js';
 import { Route, BrowserRouter } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
 import Landing from './pages/landingPage/LandingPage.js';
+import Dashboard from './pages/Dashboard.js';
 
 
 function App() {
@@ -24,6 +25,11 @@ function App() {
           <Route
             path="/landing"
             element={<Landing />
+            }
+          ></Route>
+                    <Route
+            path="/dashboard"
+            element={<Dashboard />
             }
           ></Route>
         </Routes>

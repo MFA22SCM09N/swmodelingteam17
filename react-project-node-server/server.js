@@ -13,7 +13,7 @@ app.get('/api', function(req, res) {
   console.log(latitude, longitude, q);
   console.log("\n");
   
-  request('https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX', function (error, response, body) {
+  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${latitude},${longitude}&size=9&keyword="sports events"`, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         res.json(body);
         // res.send(body);
