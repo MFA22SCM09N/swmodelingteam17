@@ -126,7 +126,7 @@ async function apiCall(latitude, longitude, q) {
     const data = await response.json();
     console.log( typeof data);
     const data_ = JSON.parse(data);
-    const sliced = data_._embedded.events.slice(0, 3); // Return top 3 
+    const sliced = data_._embedded.events.slice(0, 9); // Return top 9
     // console.log(data_._embedded.events[0].name);
     return sliced;
   } catch (error) {
@@ -145,13 +145,15 @@ async function fetchRecommendations(currLoc) {
 }
 
 // Modal To display Google Map and Recommendation based on location and weather
-const RecommendationModal = () => {
-  const [open, setOpen] = useState(false);
+const RecommendationModal = (props) => {
+  // const [open, setOpen] = useState(false);
   const [response, setResponse] = useState("");
   const [currentLocation, setCurrentLocation] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [map, setMap] = useState(null);
 
+
+  
   useEffect(() => {
     // Fetch current location and weather data
     const fetchData = async () => {
@@ -161,23 +163,35 @@ const RecommendationModal = () => {
       setCurrentWeather(weatherData);
     };
     fetchData();
+    return () => {
+      // this now gets called when the component unmounts
+    };
   }, []);
 
   useEffect(() => {
-    if (open && map === null) {
+    if (map === null) {
       // If modal is open and map is not initialized yet
       const timeout = setTimeout(() => {
         initializeMap();
-      }, 100);
+      }, 1000);
       
       // Clean up function
       return () => clearTimeout(timeout);
     }
-  }, [open, map]);
+  }, [map]);
+
+  useEffect(() => {
+    console.log(props.showRecommendations);
+    if(props.showRecommendations){
+      console.log('value changed!')
+      handleClick();
+    } else{
+      setResponse("");
+    }}, [props.showRecommendations]);
 
   const initializeMap = () => {
 
-    console.log("Current location:", currentLocation);
+    console.log("Current location: hellooooooo", currentLocation);
   
   if (!currentLocation) {
     console.log("Current location is not available yet.");
@@ -226,7 +240,7 @@ const RecommendationModal = () => {
   };
 
    const handleClick = async () => {
-    setOpen(true);
+    // setOpen(true);
     console.log(currentLocation);
     
     const openAIresponse = await agent(
@@ -234,19 +248,18 @@ const RecommendationModal = () => {
       "Please suggest 3 real-time sports events based on my current location. Include longitude, latitude, and name"
     );
     let {sportsEvents} = await fetchRecommendations(currentLocation);
-
+    let sportsEventsString = JSON.stringify(sportsEvents);
     let stringList = []
     stringList.push("Recommendations mention here\n");
     stringList.push("Sports Events \n");
-
     // addCategoryResponse(stringList, sportsEvents, 3);
-    const response = stringList.join(openAIresponse);
+    const response = stringList.join(sportsEventsString);
     setResponse(response);
     // console.log(response);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    // setOpen(false);
     setMap(null);
     setResponse('');
   };
@@ -257,16 +270,20 @@ const RecommendationModal = () => {
 
   return (
     <>
-      <Button variant="outlined" size="small" color="primary" onClick={handleClick}>
+      {/* <Button variant="outlined" size="small" color="primary" onClick={handleClick}>
         Recommended For You
-      </Button>
-      <Modal open={open} onClose={handleClose} >
-        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 1000, height: 700, bgcolor: 'background.paper', boxShadow: 24, p: 4, overflow: 'auto' }}>
+      </Button> */}
+      {/* <Modal > */}
+        <Box sx={{
+              height: '100%',
+              width: '100%',
+              
+            }}>
           <Typography id="modal-modal-title" variant="h6" component= "h2">Recommended For You</Typography>
           {/* Google Maps div */}
           <div
             id="google-map"
-            style={{ width: '100%', height: '500px' }} // Adjust height as needed
+            style={{ width: '100%', height: '400px' }} // Adjust height as needed
           ></div>
           {/* Display current location and weather */}
           <Typography variant="body1" gutterBottom>
@@ -286,7 +303,7 @@ const RecommendationModal = () => {
             sx={{ mt: 2}} 
           />
         </Box>
-      </Modal>
+      {/* </Modal> */}
     </>
   );
 };

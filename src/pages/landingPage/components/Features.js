@@ -9,6 +9,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import RecommendationButton from '../../../components/FetchRecommendation';
 
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
@@ -43,9 +44,15 @@ const items = [
 
 export default function Features() {
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
-
+  const [showRecommendations, setShowRecommendations] = React.useState(false);
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);
+    console.log(index);
+    if(index === 0){
+      setShowRecommendations(true);
+    } else {
+      setShowRecommendations(false);
+    }
   };
 
   const selectedFeature = items[selectedItemIndex];
@@ -250,10 +257,9 @@ export default function Features() {
               height: '100%',
               width: '100%',
               display: { xs: 'none', sm: 'flex' },
-              pointerEvents: 'none',
             }}
           >
-            <Box
+            {/* <Box
               sx={{
                 m: 'auto',
                 width: 420,
@@ -264,7 +270,12 @@ export default function Features() {
                     ? items[selectedItemIndex].imageLight
                     : items[selectedItemIndex].imageDark,
               }}
-            />
+            /> */}
+            <RecommendationButton showRecommendations={showRecommendations} sx={{
+              height: '100%',
+              width: '100%',
+              
+            }}/>
           </Card>
         </Grid>
       </Grid>
