@@ -13,7 +13,7 @@ import { fetchImage } from '../../../components/GetPopularEventsInfo';
 import emailjs from 'emailjs-com';
 
 
-const OPENAI_API_KEY='OPEN-AI';
+const OPENAI_API_KEY='OPEN-AI-KEY';
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -157,6 +157,7 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
 
    const sendEmail = () => {
     // Use emailjs to send email
+    const userEmailAddress = sessionStorage.getItem('loggedUser');
     emailjs.init('rYVZ2AYOsKmxkU7-_');
     emailjs.send('service_qgn9duc', 'template_92ue9ai', {
       destination: submittedDetails.destination,
@@ -165,7 +166,7 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       numberOfDays: submittedDetails.numberOfDays,
       sportPreferences: submittedDetails.sportPreferences.join(', '), // Join sport preferences into a string
       generatedItineraryMessage: formattedItinerary,
-      userEmail: localStorage.getItem('userDetails').email,
+      userEmail: userEmailAddress,
     })
     .then((response) => {
       console.log('Email sent successfully:', response);
