@@ -26,6 +26,9 @@ const Events = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole'));
+
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -100,6 +103,7 @@ const Events = () => {
     setOpenModal(true);
   };
 
+
   const handleCloseModal = () => {
     setOpenModal(false);
   };
@@ -111,19 +115,23 @@ const Events = () => {
     }
   };
 
-  const handleDeleteConfirmation = (index) => {
+  const handleDeleteConfirmation = (index, event) => {
+    event.stopPropagation();
+    handleCloseModal();
     setEventToDelete(index);
-    setOpenModal(true);
-  };
+    setShowConfirmationDialog(true);
+};
+
+  
 
   const handleDeleteEvent = () => {
-    // Remove the event from the events array based on the eventToDelete index
     const updatedEvents = [...events];
     updatedEvents.splice(eventToDelete, 1);
     setEvents(updatedEvents);
-    // Close the modal after deletion
     setOpenModal(false);
+    setShowConfirmationDialog(false);
   };
+
 
   return (
     <Container
@@ -190,15 +198,18 @@ const Events = () => {
               {event.date}
             </Typography>
           </Box>
-       
+          <Box display="flex" marginTop={2} marginLeft={3} position={'relative'}>
+        <Button variant="contained" onClick={() => handleItemClick(index)}>View Details</Button>
+        {userRole === 'Content Moderator' && (
+        <Box marginLeft={2}>
+        <Button variant="contained" color="error" onClick={(event) => handleDeleteConfirmation(index, event)}>Delete</Button>
+        </Box> )}
+      </Box>
         </CardContent>
       </Card>
     </Grid>
   ))}
 </Grid>
-
-
-
 
       <Modal
         open={openModal}
@@ -306,6 +317,35 @@ const Events = () => {
           <Button variant="contained" color="primary" onClick={handleBuyTickets} sx={{ mt: 3, ml: 30 }}>
             Buy Tickets
           </Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={showConfirmationDialog}
+        onClose={() => setShowConfirmationDialog(false)}
+        aria-labelledby="delete-confirmation-title"
+        aria-describedby="delete-confirmation-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 500,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: '10px',
+          }}
+        >
+          <Typography id="delete-confirmation-title" variant="h5" component="h2" gutterBottom  sx={{ textAlign: 'center' }}>
+            Are you sure you want to delete this event?
+          </Typography>
+          <Box display="flex" marginTop={2} marginLeft={17}>
+            <Button variant="outlined" color="primary" onClick={() => setShowConfirmationDialog(false)}>Cancel</Button>
+            <Button variant="contained" color="error" onClick={handleDeleteEvent} style={{ marginLeft: '8px' }}>Delete</Button>
+          </Box>
         </Box>
       </Modal>
       
