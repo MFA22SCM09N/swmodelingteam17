@@ -25,6 +25,7 @@ const Events = () => {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -83,7 +84,7 @@ const Events = () => {
             },
             []
           );
-          setEvents(formattedSportEvents.slice(0, 9));
+          setEvents(formattedSportEvents.slice(0, 20));
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
@@ -108,6 +109,20 @@ const Events = () => {
     if (selectedEvent && selectedEvent.ticketLink) {
       window.open(selectedEvent.ticketLink, '_blank');
     }
+  };
+
+  const handleDeleteConfirmation = (index) => {
+    setEventToDelete(index);
+    setOpenModal(true);
+  };
+
+  const handleDeleteEvent = () => {
+    // Remove the event from the events array based on the eventToDelete index
+    const updatedEvents = [...events];
+    updatedEvents.splice(eventToDelete, 1);
+    setEvents(updatedEvents);
+    // Close the modal after deletion
+    setOpenModal(false);
   };
 
   return (
@@ -175,6 +190,7 @@ const Events = () => {
               {event.date}
             </Typography>
           </Box>
+       
         </CardContent>
       </Card>
     </Grid>
@@ -292,6 +308,7 @@ const Events = () => {
           </Button>
         </Box>
       </Modal>
+      
     </Container>
   );
 };
