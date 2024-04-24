@@ -65,6 +65,22 @@ const DisplayHeatMap = (props) => {
   const [sportEventsCoordinates, setSportEventsCoordinates] = useState("");
 
   useEffect(() => {
+    return () => {
+      // Remove the existing map when the component is unmounted
+      setMap(null);
+    };
+  }, []);
+
+
+
+  useEffect(() => {
+    if (!props.showHeatMap) {
+      // Remove the existing map when showHeatMap is set to false
+      setMap(null);
+    }
+  }, [props.showHeatMap]);
+
+  useEffect(() => {
     console.log(props.showHeatMap);
     if(props.showHeatMap){
       console.log('Heat map')

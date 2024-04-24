@@ -1,7 +1,7 @@
 const express = require('express');
 const request = require('request');
 const cors = require("cors");
-const port = 5006;
+const port = 5008;
 const axios = require("axios");
 
 const app = express();
@@ -47,6 +47,26 @@ app.get('/getPopularEvents', async (req, res) => {
           }
       });
       res.json(response.data);
+  } catch (error) {
+      console.error('Error fetching places:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/serpAPI', async (req, res) => {
+  const { query } = req.query;
+  try {
+      const response = await axios.get('https://serpapi.com/search', {
+          params: {
+              api_key: '4be963ddff0381b89ed90767cf3708977ca5c8351a1de6c000441b57fca939fc',
+              engine: 'google_images',
+              type: 'search',
+              q: query,
+              limit: 1 
+          }
+      });
+      res.json(response.data);
+  console.log(res);
   } catch (error) {
       console.error('Error fetching places:', error);
       res.status(500).json({ error: 'Internal server error' });
