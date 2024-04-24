@@ -27,6 +27,9 @@ const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [deletedEvents, setDeletedEvents] = useState(
+    JSON.parse(sessionStorage.getItem('deletedEvents')) || []
+  );
   const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole'));
 
 
@@ -62,32 +65,40 @@ const Events = () => {
           const formattedSportEvents = sportEventResponse._embedded.events.reduce(
             (accumulator, event) => {
               if (!event.name.toLowerCase().includes('tour')) {
-              accumulator.push({
-                name: event.name,
-                place: event._embedded.venues[0].name,
-                date: event.dates.start.localDate,
-                time: event.dates.start.localTime,
-                ticketLink: event.url,
-                photo: event.images[0].url,
-                externalLinks: {
-                  twitter: 'https://twitter.com/whitesox',
-                  wiki: 'https://en.wikipedia.org/wiki/Chicago_White_Sox',
-                  facebook: 'https://www.facebook.com/WhiteSox',
-                  instagram: 'https://www.instagram.com/whitesox',
-                  homepage: 'https://www.mlb.com/whitesox',
-                },
-                parkingDetail: 'Parking in lots located adjacent to the stadium both to the north and to the south. Parking can be purchased at the park or in advance for $20. Please note - all cash parking day of game is located in the south lots.',
-                coordinates: {
-                  latitude: parseFloat(event._embedded.venues[0].location.latitude),
-                  longitude: parseFloat(event._embedded.venues[0].location.longitude),
-                },
-              });
-            }
+                accumulator.push({
+                  id: event.id,
+                  name: event.name,
+                  place: event._embedded.venues[0].name,
+                  date: event.dates.start.localDate,
+                  time: event.dates.start.localTime,
+                  ticketLink: event.url,
+                  photo: event.images[0].url,
+                  externalLinks: {
+                    twitter: 'https://twitter.com/whitesox',
+                    wiki: 'https://en.wikipedia.org/wiki/Chicago_White_Sox',
+                    facebook: 'https://www.facebook.com/WhiteSox',
+                    instagram: 'https://www.instagram.com/whitesox',
+                    homepage: 'https://www.mlb.com/whitesox',
+                  },
+                  parkingDetail: 'Parking in lots located adjacent to the stadium both to the north and to the south. Parking can be purchased at the park or in advance for $20. Please note - all cash parking day of game is located in the south lots.',
+                  coordinates: {
+                    latitude: parseFloat(event._embedded.venues[0].location.latitude),
+                    longitude: parseFloat(event._embedded.venues[0].location.longitude),
+                  },
+                });
+              }
               return accumulator;
             },
             []
           );
-          setEvents(formattedSportEvents.slice(0, 20));
+
+          // Filter out deleted events for the current user
+const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
+
+setEvents(filteredEvents.slice(0, 20));
+
+
+    
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
@@ -95,7 +106,7 @@ const Events = () => {
     };
   
     getEvents();
-  }, [location]);
+  }, [location, deletedEvents]);
   
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);
@@ -118,19 +129,44 @@ const Events = () => {
   const handleDeleteConfirmation = (index, event) => {
     event.stopPropagation();
     handleCloseModal();
+    
+    // Store the index of the event to delete
     setEventToDelete(index);
+    // Open the confirmation dialog
     setShowConfirmationDialog(true);
-};
-
-  
-
-  const handleDeleteEvent = () => {
-    const updatedEvents = [...events];
-    updatedEvents.splice(eventToDelete, 1);
-    setEvents(updatedEvents);
-    setOpenModal(false);
-    setShowConfirmationDialog(false);
   };
+  
+  const handleDeleteEvent = () => {
+    console.log('Deleting event...');
+    // Close the confirmation dialog
+    setShowConfirmationDialog(false);
+  
+    // Check if there's an event to delete
+    if (eventToDelete !== null) {
+      // Remove the event from the events array
+      const updatedEvents = events.filter((_, index) => index !== eventToDelete);
+  
+      // Update state after removing the event
+      setEvents(updatedEvents);
+      setOpenModal(false);
+  
+      // Remove the event ID from the deletedEvents session
+      const eventIdToDelete = events[eventToDelete]?.id;
+      if (eventIdToDelete) {
+        const updatedDeletedEvents = [...deletedEvents, eventIdToDelete];
+        setDeletedEvents(updatedDeletedEvents);
+        sessionStorage.setItem('deletedEvents', JSON.stringify(updatedDeletedEvents));
+      }
+  
+      // Reset eventToDelete state
+      setEventToDelete(null);
+    }
+  };
+  
+  
+  
+  
+  
 
 
   return (
