@@ -124,7 +124,7 @@ export default function SignUp() {
                     label="First Name"
                     autoFocus
                     value={firstname}
-                    inputProps={{ pattern: "[a-zA-Z0-9]*" }} // Allow alphanumeric characters only
+                    inputProps={{ pattern: "[a-zA-Z0-9 ]*" }} // Allow alphanumeric characters only
                     onChange={(event, data) => { setFirstname(event.target.value) }}
                   />
                 </Grid>
