@@ -96,8 +96,10 @@ const Events = () => {
 
           // Filter out deleted events for the current user
           const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
+          setEvents(filteredEvents);
+          sessionStorage.setItem('events', JSON.stringify(filteredEvents));
 
-          setEvents(filteredEvents.slice(0, 20));
+          console.log(filteredEvents);
 
 
         } catch (error) {
@@ -182,6 +184,8 @@ const Events = () => {
     setOpenAddEventModal(false);
   };
 
+  
+
   const renderImage = (photo) => {
     if (photo instanceof File) {
       // If photo is a File object, create a URL for it
@@ -233,7 +237,6 @@ const Events = () => {
       <Grid container spacing={2}>
       {events.map((event, index) => (
   <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
-     {console.log('Event info:', event)} {/* Add this line for logging */}
 
       <Card
         variant="outlined"

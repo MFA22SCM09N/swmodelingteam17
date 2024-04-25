@@ -4,7 +4,11 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import DatePicker from '@mui/lab/DatePicker';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 
 const AddEventModal = ({ open, onClose, onAddEvent }) => {
@@ -13,28 +17,52 @@ const AddEventModal = ({ open, onClose, onAddEvent }) => {
   const [place, setAddress] = useState('');
   const [parkingDetail, setParkingInfo] = useState('');
   const [photo, setImage] = useState(null);
+  const [time, setEventTime] = useState(null);
+
+  const [ticketLink, setTicketLink] = useState('');
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
 
-  
-
   const handleAddEvent = () => {
     const imageUrl = URL.createObjectURL(photo);
+    
+    // Format date to display only the date
+    const formattedDate = date instanceof Date ? date.toISOString().split('T')[0] : String(date);
+    
+    // Format time to display only the time
+    let formattedTime = '';
+    if (time instanceof Date) {
+        const hours = String(time.getHours()).padStart(2, '0');
+        const minutes = String(time.getMinutes()).padStart(2, '0');
+        formattedTime = `${hours}:${minutes}`;
+    } else {
+        formattedTime = String(time);
+    }
+
     const newEvent = {
         name,
-        date,
+        date: formattedDate,
         place,
         parkingDetail,
         photo,
+        time: formattedTime,
+        ticketLink,
+        externalLinks: {
+            twitter: 'https://twitter.com/whitesox',
+            wiki: 'https://en.wikipedia.org/wiki/Chicago_White_Sox',
+            facebook: 'https://www.facebook.com/WhiteSox',
+            instagram: 'https://www.instagram.com/whitesox',
+            homepage: 'https://www.mlb.com/whitesox',
+        },
     };
     onAddEvent(newEvent);
     alert('Event added successfully!');
-  };
+};
 
 
-  
+
 
   const handleClearEvent = () => {
     setEventName('');
@@ -76,14 +104,33 @@ const AddEventModal = ({ open, onClose, onAddEvent }) => {
           margin="normal"
         />
 
-         <TextField
-          fullWidth
-          label="Event Date"
-          value={date}
-          onChange={(e) => setEventDate(e.target.value)}
-          margin="normal"
-        /> 
-       
+
+
+        <Box marginTop="16px">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+              <DatePicker
+                label="Event Date"
+                value={date}
+                onChange={(newValue) => setEventDate(newValue)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+        </Box>
+
+        <Box marginTop="16px">
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <TimePicker
+              label="Event Time"
+              value={time}
+              onChange={(newValue) => setEventTime(newValue)}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </LocalizationProvider>
+        </Box>
+
+
         <TextField
           fullWidth
           label="Address"
@@ -91,6 +138,15 @@ const AddEventModal = ({ open, onClose, onAddEvent }) => {
           onChange={(e) => setAddress(e.target.value)}
           margin="normal"
         />
+
+        <TextField
+          fullWidth
+          label="Ticket link"
+          value={ticketLink}
+          onChange={(e) => setTicketLink(e.target.value)}
+          margin="normal"
+        />
+
         <TextField
           fullWidth
           label="Parking Info"
