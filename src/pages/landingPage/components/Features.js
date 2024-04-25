@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import RecommendationButton from '../../../components/FetchRecommendation';
-
+import DisplayHeatMap from '../../../components/DisplayHeatMap';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
@@ -34,7 +34,7 @@ const items = [
   },
   {
     icon: <DirectionsBikeIcon />,
-    title: 'Divy Bikes Near You',
+    title: 'Bikes Near You',
     description:
       'Get Moving with Ease: Locate nearby Divy bikes for convenient and eco-friendly transportation options whenever you need them',
     imageLight: 'url("DummyMap.jpg")',
@@ -43,17 +43,23 @@ const items = [
 ];
 
 export default function Features() {
-  const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
-  const [showRecommendations, setShowRecommendations] = React.useState(false);
+  var [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
+  var [showRecommendations, setShowRecommendations] = React.useState(false);
+  var [showHeatMap, setShowHeatMap] = React.useState(false);
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);
     console.log(index);
     if(index === 0){
       setShowRecommendations(true);
+      setShowHeatMap(false);
+    } else if(index === 1){
+      setShowHeatMap(true);
+      setShowRecommendations(false); 
     } else {
       setShowRecommendations(false);
+      setShowHeatMap(false);
     }
-  };
+  };  
 
   const selectedFeature = items[selectedItemIndex];
 
@@ -274,8 +280,16 @@ export default function Features() {
             <RecommendationButton showRecommendations={showRecommendations} sx={{
               height: '100%',
               width: '100%',
+              border: '5px solid red',
+              
+            }} /> 
+            <DisplayHeatMap showHeatMap={showHeatMap} sx={{
+              height: '50%',
+              width: '50%',
+              border: '5px solid blue',
               
             }}/>
+            
           </Card>
         </Grid>
       </Grid>
