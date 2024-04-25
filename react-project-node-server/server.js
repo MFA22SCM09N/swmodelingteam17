@@ -9,11 +9,12 @@ app.use(cors());
 
 app.get('/api', function(req, res) {
   const { latitude, longitude, q } = req.query;
+
   console.log("latitude, longitude, query: ");
   console.log(latitude, longitude, q);
   console.log("\n");
   
-  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${latitude},${longitude}&size=9&keyword="sports events"`, function (error, response, body) {
+  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${latitude},${longitude}&keyword="sports events"`, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         res.json(body);
         // res.send(body);
@@ -24,11 +25,12 @@ app.get('/api', function(req, res) {
         res.status(500).json({ error: 'Internal Server Error' });
       }
   });
-
 });
 
 app.get('/getPopularEvents', async (req, res) => {
   const { eventType, latitude, longitude, postal, city, radius, unit , size} = req.query;
+  console.log("getPopularEvents");
+  console.log(latitude, longitude);
   try {
       const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
           params: {

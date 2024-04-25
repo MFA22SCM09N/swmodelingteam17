@@ -1,16 +1,16 @@
 import OpenAI from "openai";
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Box, Typography, TextField } from '@mui/material';
+import {fetchPopularEvents} from './GetPopularEventsInfo';
 
-
-const OPENAI_API_KEY='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';
+const OPENAI_API_KEY='API_KEY';
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
-
+let displayMap;
 async function getLocation() {
   const response = await fetch("https://ipapi.co/json/");
   const locationData = await response.json();
@@ -117,7 +117,7 @@ async function agent(userInput) {
 // Function to fetch events
 async function apiCall(latitude, longitude, q) {
   // call server here
-  const url = `http://localhost:5006/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
+  const url = `http://localhost:5008/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
   console.log(url);
   
   try {
@@ -126,8 +126,7 @@ async function apiCall(latitude, longitude, q) {
     const data = await response.json();
     console.log( typeof data);
     const data_ = JSON.parse(data);
-    const sliced = data_._embedded.events.slice(0, 9); // Return top 9
-    // console.log(data_._embedded.events[0].name);
+    const sliced = data_._embedded.events.slice(0, 90); // Return top 9
     return sliced;
   } catch (error) {
     console.error('Error fetching results:', error);
@@ -136,9 +135,8 @@ async function apiCall(latitude, longitude, q) {
 }
 
 // // Example usage
-async function fetchRecommendations(currLoc) {
-  const sportsEvents = await apiCall(currLoc.latitude, currLoc.longitude, "Sports Events");
-  // const sportsEvents = 0;
+async function fetchRecommendations(currentLocation) {
+  const sportsEvents = await apiCall(currentLocation.latitude, currentLocation.longitude, "Sports Events");
   console.log("Sports Events:");
   console.log(sportsEvents);
   return {sportsEvents};
@@ -173,7 +171,7 @@ const RecommendationModal = (props) => {
       // If modal is open and map is not initialized yet
       const timeout = setTimeout(() => {
         initializeMap();
-      }, 1000);
+      }, 100);
       
       // Clean up function
       return () => clearTimeout(timeout);
@@ -189,22 +187,22 @@ const RecommendationModal = (props) => {
       setResponse("");
     }}, [props.showRecommendations]);
 
-  const initializeMap = () => {
+  const initializeMap = async () => {
 
-    console.log("Current location: hellooooooo", currentLocation);
+    const currLocation = await getLocation();
   
-  if (!currentLocation) {
-    console.log("Current location is not available yet.");
-    return;
-  }
+    if (!currLocation) {
+      console.log("Current location is not available yet.");
+      return;
+    }
 
     if (typeof google === 'undefined') {
       // Google Maps API is not loaded yet, wait for it
       return;
     }
    
-  
-    const mapCenter = { lat: currentLocation.latitude, lng: currentLocation.longitude };
+    console.log("my location", typeof currLocation.latitude);
+    const mapCenter = { lat: currLocation.latitude, lng: currLocation.longitude };
     console.log("mapCenter :",mapCenter );
     const mapElement = document.getElementById('google-map');
     console.log("Map element:", mapElement);
@@ -217,7 +215,7 @@ const RecommendationModal = (props) => {
       center: mapCenter,
       zoom: 10,
     };
-    const displayMap = new window.google.maps.Map(mapElement, mapOptions);
+    displayMap = new window.google.maps.Map(mapElement, mapOptions);
     setMap(displayMap);
   
     const customMarkerIcon = { url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
@@ -238,24 +236,62 @@ const RecommendationModal = (props) => {
       }
     });
   };
+  const addCategoryResponse = (categoryType) => {
+    let latitude = 0;
+    let longitude = 0;
+    let count =0;
+
+    // set marker default for sports events
+    let colorCfg = 'orange';
+    let customMarkerIcon = { url: 'https://maps.gstatic.com/mapfiles/ms2/micons/sportvenue.png',
+    scaledSize: {
+      width: 40,
+      height: 40
+    }};
+
+    for(let i=0; i< categoryType.length; i++){
+      if(count==9){
+        break;
+      }
+      let category = categoryType[i];
+      if(category._embedded){
+        if(category._embedded.venues[0].location){
+          if (latitude == category._embedded.venues[0].location.latitude && longitude == category._embedded.venues[0].location.longitude){
+            continue;
+          }
+          latitude = category._embedded.venues[0].location.latitude;
+          longitude = category._embedded.venues[0].location.longitude;
+          // console.log(count);
+          console.log(parseFloat(latitude));
+          console.log(parseFloat(longitude));
+          console.log(category.name);
+          const mapPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+
+          // Add marker
+          new window.google.maps.Marker({
+            position: mapPosition,
+            map: displayMap,
+            icon: customMarkerIcon,
+            label: {
+              text: category.name,
+              color: colorCfg
+            }
+          });
+        }
+        
+      }
+      count = count + 1;
+
+    }
+    count = 0;
+  }
 
    const handleClick = async () => {
     // setOpen(true);
     console.log(currentLocation);
     
-    const openAIresponse = await agent(
-      // "Please suggest some activities based on my location and the weather."
-      "Please suggest 3 real-time sports events based on my current location. Include longitude, latitude, and name"
-    );
     let {sportsEvents} = await fetchRecommendations(currentLocation);
-    let sportsEventsString = JSON.stringify(sportsEvents);
-    let stringList = []
-    stringList.push("Recommendations mention here\n");
-    stringList.push("Sports Events \n");
-    // addCategoryResponse(stringList, sportsEvents, 3);
-    const response = stringList.join(sportsEventsString);
-    setResponse(response);
-    // console.log(response);
+    addCategoryResponse(sportsEvents);
   };
 
   const handleClose = () => {
@@ -279,11 +315,10 @@ const RecommendationModal = (props) => {
               width: '100%',
               
             }}>
-          <Typography id="modal-modal-title" variant="h6" component= "h2">Recommended For You</Typography>
           {/* Google Maps div */}
           <div
             id="google-map"
-            style={{ width: '100%', height: '400px' }} // Adjust height as needed
+            style={{ width: '100%', height: '100%' }} // Adjust height as needed
           ></div>
           {/* Display current location and weather */}
           <Typography variant="body1" gutterBottom>
@@ -293,15 +328,6 @@ const RecommendationModal = (props) => {
           Current Weather: {currentWeather ? `${convertCelsiusToFahrenheit(currentWeather.hourly.apparent_temperature[0])}°F` : 'Loading...'}
           </Typography>
           {/* Display response */}
-          <TextField
-            fullWidth
-            multiline
-            rows={10}
-            value={response ? response : "Loading Recommendation..."}
-            disabled
-            variant="outlined"
-            sx={{ mt: 2}} 
-          />
         </Box>
       {/* </Modal> */}
     </>
