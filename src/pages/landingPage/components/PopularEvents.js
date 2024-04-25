@@ -17,6 +17,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import AddEventModal from './AddEventModal';
 import { fetchPopularEvents } from '../../../components/GetPopularEventsInfo';
 
 const Events = () => {
@@ -26,12 +27,12 @@ const Events = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const [openAddEventModal, setOpenAddEventModal] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [deletedEvents, setDeletedEvents] = useState(
     JSON.parse(sessionStorage.getItem('deletedEvents')) || []
   );
   const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole'));
-
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -49,6 +50,7 @@ const Events = () => {
 
   useEffect(() => {
     const getEvents = async () => {
+      handleAddEvent(0);
       if (location) {
         try {
           const { latitude, longitude, postal, city } = location;
@@ -93,30 +95,29 @@ const Events = () => {
           );
 
           // Filter out deleted events for the current user
-const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
+          const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
 
-setEvents(filteredEvents.slice(0, 20));
+          setEvents(filteredEvents.slice(0, 20));
 
 
-    
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
       }
     };
-  
+
     getEvents();
   }, [location, deletedEvents]);
-  
+
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);
     setSelectedEvent(events[index]);
     setOpenModal(true);
   };
 
-
   const handleCloseModal = () => {
     setOpenModal(false);
+    setOpenAddEventModal(false);
   };
 
   const handleBuyTickets = () => {
@@ -129,27 +130,27 @@ setEvents(filteredEvents.slice(0, 20));
   const handleDeleteConfirmation = (index, event) => {
     event.stopPropagation();
     handleCloseModal();
-    
+
     // Store the index of the event to delete
     setEventToDelete(index);
     // Open the confirmation dialog
     setShowConfirmationDialog(true);
   };
-  
+
   const handleDeleteEvent = () => {
     console.log('Deleting event...');
     // Close the confirmation dialog
     setShowConfirmationDialog(false);
-  
+
     // Check if there's an event to delete
     if (eventToDelete !== null) {
       // Remove the event from the events array
       const updatedEvents = events.filter((_, index) => index !== eventToDelete);
-  
+
       // Update state after removing the event
       setEvents(updatedEvents);
       setOpenModal(false);
-  
+
       // Remove the event ID from the deletedEvents session
       const eventIdToDelete = events[eventToDelete]?.id;
       if (eventIdToDelete) {
@@ -157,17 +158,43 @@ setEvents(filteredEvents.slice(0, 20));
         setDeletedEvents(updatedDeletedEvents);
         sessionStorage.setItem('deletedEvents', JSON.stringify(updatedDeletedEvents));
       }
-  
+
       // Reset eventToDelete state
       setEventToDelete(null);
     }
   };
-  
-  
-  
-  
-  
 
+
+  const handleAddEvent = (newEvent) => {
+
+
+    console.log(newEvent);
+    // Add the new event to the events array
+    const updatedEvents = [...events, newEvent];
+
+    console.log(updatedEvents);
+    
+    // Update the state with the new events array
+    setEvents(updatedEvents);
+    sessionStorage.setItem('events', JSON.stringify(updatedEvents));
+  
+    // Close the modal after adding the event
+    setOpenAddEventModal(false);
+  };
+
+  const renderImage = (photo) => {
+    if (photo instanceof File) {
+      // If photo is a File object, create a URL for it
+      return URL.createObjectURL(photo);
+    } else if (typeof photo === 'string') {
+      // If photo is a string, assume it's a URL
+      return photo;
+    } else {
+      // Handle other cases (e.g., null, undefined)
+      return ''; // Or provide a default image URL
+    }
+  };
+  
 
   return (
     <Container
@@ -198,9 +225,16 @@ setEvents(filteredEvents.slice(0, 20));
           Join us in exploring the best that your area has to offer!
         </Typography>
       </Box>
+      {userRole === 'Event Provider' && (
+        <Box marginLeft={2}>
+          <Button variant="contained" onClick={() => setOpenAddEventModal(true)}>Add New Event</Button>
+        </Box>
+      )}
       <Grid container spacing={2}>
-  {events.map((event, index) => (
-    <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
+      {events.map((event, index) => (
+  <Grid item xs={12} sm={6} md={4} key={index} sx={{ display: 'flex' }}>
+     {console.log('Event info:', event)} {/* Add this line for logging */}
+
       <Card
         variant="outlined"
         sx={{
@@ -217,7 +251,8 @@ setEvents(filteredEvents.slice(0, 20));
         }}
         onClick={() => handleItemClick(index)}
       >
-        <img src={event.photo} alt={event.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+         <img src={renderImage(event.photo)} alt={event.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+        
         <CardContent>
           <Typography variant="h6" color="text.primary">
             {event.name}
@@ -235,17 +270,19 @@ setEvents(filteredEvents.slice(0, 20));
             </Typography>
           </Box>
           <Box display="flex" marginTop={2} marginLeft={3} position={'relative'}>
-        <Button variant="contained" onClick={() => handleItemClick(index)}>View Details</Button>
-        {userRole === 'Content Moderator' && (
-        <Box marginLeft={2}>
-        <Button variant="contained" color="error" onClick={(event) => handleDeleteConfirmation(index, event)}>Delete</Button>
-        </Box> )}
-      </Box>
+            <Button variant="contained" onClick={() => handleItemClick(index)}>View Details</Button>
+            {userRole === 'Content Moderator' && (
+              <Box marginLeft={2}>
+                <Button variant="contained" color="error" onClick={(event) => handleDeleteConfirmation(index, event)}>Delete</Button>
+              </Box>
+            )}
+          </Box>
         </CardContent>
       </Card>
-    </Grid>
-  ))}
-</Grid>
+  </Grid>
+))}
+
+      </Grid>
 
       <Modal
         open={openModal}
@@ -269,7 +306,7 @@ setEvents(filteredEvents.slice(0, 20));
           }}
         >
           <img
-            src={selectedEvent && selectedEvent.photo}
+            src={selectedEvent && renderImage(selectedEvent.photo)}
             alt={selectedEvent && selectedEvent.name}
             style={{
               width: '100%',
@@ -342,7 +379,7 @@ setEvents(filteredEvents.slice(0, 20));
               Object.entries(selectedEvent.externalLinks).map(([key, url]) => (
                 <Link key={key} href={url} target="_blank" rel="noopener noreferrer" sx={{ mr: 2 }}>
                   {key === 'twitter' && <TwitterIcon />}
-                  {key === 'wiki' && <InsertLinkIcon/> }
+                  {key === 'wiki' && <InsertLinkIcon /> }
                   {key === 'facebook' && <FacebookIcon />}
                   {key === 'instagram' && <InstagramIcon />}
                   {key === 'homepage' && <WebIcon />}
@@ -384,7 +421,17 @@ setEvents(filteredEvents.slice(0, 20));
           </Box>
         </Box>
       </Modal>
-      
+
+      {/* AddEventModal component */}
+      <AddEventModal
+        open={openAddEventModal}
+        onClose={handleCloseModal}
+        onAddEvent={(newEvent) => {
+          console.log('Adding new event:', newEvent);
+          handleAddEvent(newEvent);
+        }}
+        selectedEvent={selectedEvent}
+      />
     </Container>
   );
 };
