@@ -45,7 +45,7 @@ const Events = () => {
 
   const userNameFromSession = sessionStorage.getItem('firstName') + " " + sessionStorage.getItem('lastName');
 
-  const OPENAI_API_KEY='OPEN-AI-KEY';
+  const OPENAI_API_KEY='';
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -193,7 +193,6 @@ const messages = [
   };
 
   const handleDeleteEvent = () => {
-    console.log('Deleting event...');
     // Close the confirmation dialog
     setShowConfirmationDialog(false);
 
@@ -229,7 +228,6 @@ const messages = [
 
   const generateFeedback = async (eventName) => {
     const queryString = constructQueryString(eventName);
-    console.log(queryString);
     let messages = [{
       role: "user",
       content: queryString,
@@ -242,7 +240,6 @@ const messages = [
           messages: messages,
         });
       }
-      console.log(response);
       return response;
   
     } catch (error) {
@@ -253,8 +250,6 @@ const messages = [
 
   const getAiAssistedFeedback = async (eventName) => {
     const response = await generateFeedback(eventName);
-    console.log(response);
-    console.log(response.choices[0].message.content);
     var formattedResponse = "";
 
     if(response!="" && response.choices[0]!=""){
