@@ -30,7 +30,6 @@ async function getSportEventsCoordinates(currentLocation) {
         }
 
         const sportEventResponse = await fetchPopularEvents("Sports", currentLocation.latitude, currentLocation.longitude, currentLocation.postal, currentLocation.city, "100", "miles", "100");
-    
         const formattedSportEvents = sportEventResponse._embedded.events.reduce(
             (accumulator, event) => {
                 if (!event.name.toLowerCase().includes('tour')) {
@@ -190,7 +189,6 @@ const DisplayHeatMap = (props) => {
     var heatmapData = [];
 
     sportEventsCoordinates.forEach(event => {
-        console.log(event);
         try {
 
             // Fetch coordinates for event location
@@ -198,7 +196,7 @@ const DisplayHeatMap = (props) => {
             const longitude = event.coordinates.longitude;
 
             const latLng = new window.google.maps.LatLng(latitude, longitude);
-            latLng.weight = 3.0;
+            latLng.weight = 2.0;
 
             // Push the LatLng object into the heatmapData array
             heatmapData.push(latLng);
