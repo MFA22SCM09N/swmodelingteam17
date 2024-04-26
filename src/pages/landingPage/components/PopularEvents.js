@@ -45,7 +45,7 @@ const Events = () => {
 
   const userNameFromSession = sessionStorage.getItem('firstName') + " " + sessionStorage.getItem('lastName');
 
-  const OPENAI_API_KEY='sk-proj-cyN8bQzlJMepvbQNaN8yT3BlbkFJIMO90UpCn9pEYDy4uHiO';
+  const OPENAI_API_KEY='OPEN-AI-KEY';
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
