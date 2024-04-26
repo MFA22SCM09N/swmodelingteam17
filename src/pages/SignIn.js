@@ -16,12 +16,16 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { InputAdornment, IconButton } from '@mui/material';
 import CryptoJS from 'crypto-js';
 import { useNavigate } from 'react-router-dom';
+import { useAccounts } from "../Context/AccountsContext";
+import { useAuth } from "../Context/AuthContext";
 
 const defaultTheme = createTheme();
 
 export default function SignIn() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { accounts, setCurrAcc } = useAccounts();
+    const { setAuthenticated } = useAuth();
     let navigate = useNavigate();
 
   
@@ -34,9 +38,10 @@ export default function SignIn() {
             return
         }
         const users = JSON.parse(localStorage.getItem('userDetails')) || [];
+        const acc = accounts.find((item) => item.email === email);
 
         const user = users.find(user => user.email === email);
-        if (user) {
+        if (user && acc.status === "active") {
             console.log(user);
             var pass = (CryptoJS.AES.decrypt(user.password, 'secret_key_here_lol').toString(CryptoJS.enc.Utf8));
             if (pass === password) {
@@ -46,6 +51,8 @@ export default function SignIn() {
                 sessionStorage.setItem('firstName',user.firstName);
                 sessionStorage.setItem('lastName',user.lastName);
                 window.location.href = "/landing";
+                setCurrAcc(acc);
+                setAuthenticated(true);
             }
             else {
                 alert("Wrong Password!");

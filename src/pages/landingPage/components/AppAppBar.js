@@ -18,6 +18,8 @@ import MapsMarker from '../../../components/mapsMarker.png';
 import { styled } from '@mui/system';
 import { useState, useEffect } from 'react';
 
+const userRole = sessionStorage.getItem('userRole');
+console.log(userRole);
 
 
 const SearchInput = styled('input')({
@@ -100,6 +102,10 @@ function AppAppBar({ mode, toggleColorMode }) {
     navigate("/");
   };
 
+  const handleDashboard = () => {
+    navigate("/dashboard");
+  };
+
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -144,6 +150,7 @@ function AppAppBar({ mode, toggleColorMode }) {
                   : 'rgba(0, 0, 0, 0.4)',
               backdropFilter: 'blur(24px)',
               maxHeight: 40,
+              maxWidth : 4000,
               border: '1px solid',
               borderColor: 'divider',
               boxShadow:
@@ -218,11 +225,29 @@ function AppAppBar({ mode, toggleColorMode }) {
             >
               <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
               </Box>
-              <Box>
+              {userRole === 'System Admin' && (<Box
+              sx={{
+                display: { xs: 'none', md: 'flex', marginRight: '10px' },
+                gap: 0.5,
+                alignItems: 'center',
+              }}>
               <Button
                 color="primary"
                 variant="contained"
-                size="small"
+                onClick={handleDashboard}
+              >
+              Dashboard
+              </Button>
+              </Box> )}
+              <Box
+              sx={{
+                display: { xs: 'none', md: 'flex' },
+                gap: 0.5,
+                alignItems: 'center',
+              }}>
+              <Button
+                color="primary"
+                variant="contained"
                 onClick={handleSignOut}
               >
               Sign Out

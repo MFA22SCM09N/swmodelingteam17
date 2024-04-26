@@ -18,6 +18,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CryptoJS from 'crypto-js';
 import { useNavigate } from "react-router-dom";
+import { useAccounts } from "../Context/AccountsContext";
+import { useAuth } from "../Context/AuthContext";
+import { v4 as uuidv4 } from "uuid";
 
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -34,6 +37,13 @@ export default function SignUp() {
   const [role, setRole] = useState("User");
   const navigate = useNavigate();
 
+  const { accounts, setAccounts } = useAccounts();
+  const { setAuthenticated } = useAuth();
+
+  function addAccount(newuser) {
+    setAccounts((acc) => [...acc, newuser]);
+  }
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -46,19 +56,27 @@ export default function SignUp() {
       return;
     }
 
+    const id = uuidv4();
+
     const newUser = {
+      id,
       firstName: firstname,
       lastName: lastname,
       email: email,
       gender: gender,
       age: age,
       role: role,
+      status: "active",
       password: CryptoJS.AES.encrypt(password, 'secret_key_here_lol').toString()
     };
-
+    
+    console.log(newUser);
     users.push(newUser);
 
     localStorage.setItem('userDetails', JSON.stringify(users));
+
+    addAccount(newUser);
+    setAuthenticated(false);
     alert("User registered!");
     navigate("/");
   };

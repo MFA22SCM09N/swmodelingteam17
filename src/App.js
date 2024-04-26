@@ -3,7 +3,9 @@ import SignIn from './pages/SignIn.js';
 import { Route, BrowserRouter } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
 import Landing from './pages/landingPage/LandingPage.js';
-import Dashboard from './pages/Dashboard.js';
+import Dashboard from '../src/Dashboard/Dashboard.js';
+import { AccountsProvider } from "./Context/AccountsContext.jsx";
+import { AuthProvider } from "./Context/AuthContext.jsx";
 
 
 function App() {
@@ -11,6 +13,8 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
+      <AccountsProvider>
+      <AuthProvider>
         <Routes>
           <Route
             path="/"
@@ -27,12 +31,14 @@ function App() {
             element={<Landing />
             }
           ></Route>
-                    <Route
+            <Route
             path="/dashboard"
             element={<Dashboard />
             }
           ></Route>
         </Routes>
+        </AuthProvider>
+        </AccountsProvider>
       </BrowserRouter>
     </div>
 
