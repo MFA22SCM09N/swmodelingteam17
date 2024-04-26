@@ -1,7 +1,7 @@
 const express = require('express');
 const request = require('request');
 const cors = require("cors");
-const port = 5008;
+const port = 5009;
 const axios = require("axios");
 
 const app = express();
@@ -29,7 +29,6 @@ app.get('/api', function(req, res) {
 
 app.get('/getPopularEvents', async (req, res) => {
   const { eventType, latitude, longitude, postal, city, radius, unit , size} = req.query;
-  console.log("getPopularEvents");
   console.log(latitude, longitude);
   try {
       const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
@@ -70,7 +69,27 @@ app.get('/serpAPI', async (req, res) => {
       res.json(response.data);
   console.log(res);
   } catch (error) {
-      console.error('Error fetching places:', error);
+      console.error('Error fetching image:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/getNearbyPlacesInfo', async (req, res) => {
+  const { query } = req.query;
+  try {
+      const response = await axios.get('https://serpapi.com/search', {
+          params: {
+              api_key: 'key',
+              engine: 'google',
+              type: 'search',
+              q: query,
+              limit: 3 
+          }
+      });
+      res.json(response.data);
+  console.log(res);
+  } catch (error) {
+      console.error('Error fetching places info:', error);
       res.status(500).json({ error: 'Internal server error' });
   }
 });

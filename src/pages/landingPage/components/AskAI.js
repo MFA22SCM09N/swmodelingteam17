@@ -9,11 +9,13 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EventIcon from '@mui/icons-material/Event';
 import SportsIcon from '@mui/icons-material/Sports';
-import { fetchImage } from '../../../components/GetPopularEventsInfo';
+import { fetchNearbyPlaces, fetchImage } from '../../../components/GetPopularEventsInfo';
 import emailjs from 'emailjs-com';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import HotelIcon from '@mui/icons-material/Hotel';
 
 
-const OPENAI_API_KEY='OPEN-AI-KEY';
+const OPENAI_API_KEY='openaikey';
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -28,11 +30,15 @@ const messages = [
     content: `You are a helpful assistant. Only use the functions you have been provided with.`,
   },
 ];
+
+
  
 
 
 const AskAI = ({ open, onClose, submittedDetails }) => {
   const [generatedItinerary, setGeneratedItinerary] = useState('');
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState('');
+  const [recommendedHotels, setRecommendedHotels] = useState('');
   const [formattedItinerary, setFormattedItinerary] = useState('');
   const [loading, setLoading] = useState(false);
   const [placeImage, setPlaceImage] = useState('');
@@ -40,6 +46,8 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
   useEffect(() => {
     if (open) {
       generateItinerary();
+      getRestaurantsInformation(submittedDetails);
+      getHotelsInformation(submittedDetails);
       fetchPlaceImage(submittedDetails.destination);
     }
   }, [open]);
@@ -57,6 +65,9 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       console.error('Error fetching image:', error);
     }
   };
+
+
+ 
 
   const formatItinerary = (tripDetails, itinerary) => {
     const { destination, budget, numberOfDays, sportPreferences } = tripDetails;
@@ -86,6 +97,8 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       </div>
     );
   };
+
+
   
 
 
@@ -97,7 +110,6 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
         const formattedResponse = formatItinerary(submittedDetails, response.choices[0].message.content);
         setGeneratedItinerary(formattedResponse);
         setFormattedItinerary(response.choices[0].message.content);
-        console.log(formattedResponse);
         
       } else {
         console.error('Invalid response format:', response); // Log invalid response format
@@ -109,6 +121,77 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       setLoading(false);
     }
   };
+
+  async function getRestaurantsInformation(submittedDetails){
+    try {
+      const queryString = "Restaurants in " + submittedDetails.destination;
+      const restaurantResponse = await fetchNearbyPlaces(queryString);
+      console.log(restaurantResponse);
+      console.log(restaurantResponse.local_results.places);
+      const formattedRestaurants = restaurantResponse && restaurantResponse.local_results ? 
+      restaurantResponse.local_results.places.map(place => {
+          return {
+              name: place.title,
+              location: place.address,
+              rating: place.rating,
+          };
+      }) : [];
+  
+      console.log(formattedRestaurants);
+  
+      const restaurantString = `Recommended Restaurants: \n` + formattedRestaurants.map(restaurant => {
+        return `${restaurant.name}: ${restaurant.location}, Rating: ${restaurant.rating} `;
+      }).join('\n');
+  
+      console.log(restaurantString);
+      setRecommendedRestaurants(restaurantString);
+      return {
+        formattedRestaurants : restaurantString
+      }; 
+  
+  
+    } catch (error) {
+      setRecommendedRestaurants("");
+      console.error("Error fetching restaurants information:", error);
+      throw error; 
+    }
+  }
+  
+  async function getHotelsInformation(submittedDetails){
+    try {
+      const queryString = "Hotels in " + submittedDetails.destination;
+      const hotelsResponse = await fetchNearbyPlaces(queryString);
+      console.log(hotelsResponse);
+      console.log(hotelsResponse.answer_box.hotels);
+      const formattedHotels = hotelsResponse && hotelsResponse.answer_box ? 
+      hotelsResponse.answer_box.hotels.map(hotel => {
+          return {
+              name: hotel.title,
+              rating: hotel.rating,
+              price: hotel.price,
+          };
+      }).slice(0, 3): [];
+  
+      console.log(formattedHotels);
+  
+      const hotelString =  `Recommended Hotels: \n` + formattedHotels.map(hotel => {
+        return `${hotel.name}, Rating: ${hotel.rating}, Price: ${hotel.price} `;
+      }).join('\n');
+  
+      console.log(hotelString);
+      setRecommendedHotels(hotelString);
+      return {
+        formattedHotels : hotelString
+      }; 
+  
+    } catch (error) {
+      setRecommendedHotels("");
+      console.error("Error fetching restaurants information:", error);
+      throw error; 
+    }
+  }
+  
+ 
   
   
   
@@ -166,6 +249,8 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       numberOfDays: submittedDetails.numberOfDays,
       sportPreferences: submittedDetails.sportPreferences.join(', '), // Join sport preferences into a string
       generatedItineraryMessage: formattedItinerary,
+      restaurantInfo: recommendedRestaurants,
+      hotelInfo: recommendedHotels,
       userEmail: userEmailAddress,
     })
     .then((response) => {
@@ -245,6 +330,13 @@ const AskAI = ({ open, onClose, submittedDetails }) => {
       ) : (
         <div>
           {generatedItinerary}
+          <Typography variant="h6" component="h3" gutterBottom>
+            <RestaurantIcon/>  {recommendedRestaurants}
+          </Typography>
+
+          <Typography variant="h6" component="h3" gutterBottom>
+            <HotelIcon/>  {recommendedHotels}
+          </Typography>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
   <Button
     onClick={onClose}

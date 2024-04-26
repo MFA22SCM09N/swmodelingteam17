@@ -117,7 +117,7 @@ async function agent(userInput) {
 // Function to fetch events
 async function apiCall(latitude, longitude, q) {
   // call server here
-  const url = `http://localhost:5008/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
+  const url = `http://localhost:5009/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
   console.log(url);
   
   try {

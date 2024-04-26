@@ -114,12 +114,14 @@ export default function PlanYourTrip() {
                     onChange={(e) => setSportPreferences(e.target.value)}
                     label="Sport Preferences"
                   >
+                    <MenuItem value="Swimming">Cricket</MenuItem>
                     <MenuItem value="Football">Football</MenuItem>
                     <MenuItem value="Basketball">Basketball</MenuItem>
+                    <MenuItem value="Basketball">Baseball</MenuItem>
                     <MenuItem value="Tennis">Tennis</MenuItem>
                     <MenuItem value="Golf">Golf</MenuItem>
                     <MenuItem value="Swimming">Swimming</MenuItem>
-                    {/* Add more sports as needed */}
+                    
                   </Select>
                 </FormControl>
               </Grid>
