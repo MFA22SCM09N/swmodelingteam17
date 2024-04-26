@@ -11,10 +11,13 @@ app.get('/api', function(req, res) {
   const { latitude, longitude, q } = req.query;
 
   console.log("latitude, longitude, query: ");
+  lat=41.8781;
+  long=-87.6298;
   console.log(latitude, longitude, q);
+  console.log(lat, long, q);
   console.log("\n");
   
-  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${latitude},${longitude}&keyword="sports events"`, function (error, response, body) {
+  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${lat},${long}&keyword="sports events"`, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         res.json(body);
         // res.send(body);
@@ -28,30 +31,52 @@ app.get('/api', function(req, res) {
 });
 
 app.get('/getPopularEvents', async (req, res) => {
+  // const { eventType, latitude, longitude, postal, city, radius, unit , size} = req.query;
+  // console.log("getPopularEvents");
+  // lat=41.8781;
+  // long=-87.6298;
+  // console.log(latitude, longitude);
+  // console.log(lat, long);
+  // try {
+  //     const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
+  //         params: {
+  //             apikey: 'njuu99MidStatGmVALQgyGZBorQpnXAX',
+  //             // countryCode: 'US',
+  //              sort: 'date,asc',
+  //              includeTBA: 'yes',
+  //              postal: postal,
+  //             classificationName: eventType,
+  //             latitude: lat,
+  //             longitude: long,
+  //             radius: radius,
+  //             unit: unit,
+  //             city: city,
+  //             size: size,
+  //         }
+  //     });
+  //       console.log(response.data);
+
+  //     res.json(response.data);
+  // } catch (error) {
+  //     console.error('Error fetching places:', error);
+  //     res.status(500).json({ error: 'Internal server error' });
+  // }
   const { eventType, latitude, longitude, postal, city, radius, unit , size} = req.query;
   console.log(latitude, longitude);
-  try {
-      const response = await axios.get('https://app.ticketmaster.com/discovery/v2/events.json', {
-          params: {
-              apikey: 'njuu99MidStatGmVALQgyGZBorQpnXAX',
-              countryCode: 'US',
-               sort: 'date,asc',
-               includeTBA: 'yes',
-               postal: postal,
-              classificationName: eventType,
-              latitude: latitude,
-              longitude: longitude,
-              radius: radius,
-              unit: unit,
-              city: city,
-              size: size,
-          }
-      });
-      res.json(response.data);
-  } catch (error) {
-      console.error('Error fetching places:', error);
-      res.status(500).json({ error: 'Internal server error' });
-  }
+  console.log(lat, long);
+  console.log("\n");
+  
+  request(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=njuu99MidStatGmVALQgyGZBorQpnXAX&geoPoint=${lat},${long}&keyword="sports events"`, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        res.json(body);
+        // res.send(body);
+        console.log(body);
+      } 
+      else {
+        // res.send(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+  });
 });
 
 app.get('/serpAPI', async (req, res) => {
