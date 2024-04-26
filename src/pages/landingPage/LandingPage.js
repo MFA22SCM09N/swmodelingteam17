@@ -20,6 +20,7 @@ import Footer from './components/Footer';
 import getLPTheme from './getLPTheme';
 import Chatbot from '../../chatbot/Chatbot';
 import ChatbotIcon from '../../chatbot/ChatbotIcon';
+import BotIcon from '../../chatbot/BotIcon';
 
 function ToggleCustomTheme({ showCustomTheme, toggleCustomTheme }) {
   return (
@@ -88,7 +89,8 @@ export default function LandingPage() {
         <FAQ />
         <Divider />
         <Footer />
-        <ChatbotIcon />
+        {/* <ChatbotIcon /> */}
+        <BotIcon />
       </Box>
       <ToggleCustomTheme
         showCustomTheme={showCustomTheme}
