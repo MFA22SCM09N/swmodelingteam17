@@ -43,6 +43,8 @@ export default function SignIn() {
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('loggedUser', user.email);
                 sessionStorage.setItem('userRole',user.role);
+                sessionStorage.setItem('firstName',user.firstName);
+                sessionStorage.setItem('lastName',user.lastName);
                 window.location.href = "/landing";
             }
             else {

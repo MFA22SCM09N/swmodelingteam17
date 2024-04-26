@@ -19,6 +19,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddEventModal from './AddEventModal';
 import { fetchPopularEvents } from '../../../components/GetPopularEventsInfo';
+import Avatar from '@mui/material/Avatar';
+import Switch from '@mui/material/Switch';
+import OpenAI from "openai";
 
 const Events = () => {
   const [location, setLocation] = useState(null);
@@ -33,6 +36,60 @@ const Events = () => {
     JSON.parse(sessionStorage.getItem('deletedEvents')) || []
   );
   const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole'));
+  const [feedback, setFeedback] = useState('');
+
+  const storedFeedback = JSON.parse(sessionStorage.getItem('feedback'));
+  const [eventFeedback, setEventFeedback] = useState({});
+  const [aiAssistedFeedback, setAiAssistedFeedback] = useState(false);
+
+
+  const userNameFromSession = sessionStorage.getItem('firstName') + " " + sessionStorage.getItem('lastName');
+
+  const OPENAI_API_KEY='sk-proj-cyN8bQzlJMepvbQNaN8yT3BlbkFJIMO90UpCn9pEYDy4uHiO';
+
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true,
+});
+
+
+
+const messages = [
+  {
+    role: "system",
+    content: `You are a helpful assistant. Only use the functions you have been provided with.`,
+  },
+];
+
+  function stringToColor(string) {
+    let hash = 0;
+    let i;
+  
+    /* eslint-disable no-bitwise */
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+  
+    let color = '#';
+  
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    /* eslint-enable no-bitwise */
+  
+    return color;
+  }
+  
+  function stringAvatar(name) {
+    return {
+      sx: {
+        bgcolor: stringToColor(name),
+      },
+      children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
+    };
+  }
+
 
   useEffect(() => {
     const fetchLocation = async () => {
@@ -98,10 +155,6 @@ const Events = () => {
           const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
           setEvents(filteredEvents);
           sessionStorage.setItem('events', JSON.stringify(filteredEvents));
-
-          console.log(filteredEvents);
-
-
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
@@ -166,15 +219,54 @@ const Events = () => {
     }
   };
 
+  const constructQueryString = (eventName) => {
+    // Constructing the query string based on user input
+    let queryString = `Attended the event ${eventName}`;
+    queryString += ` Seeking engaging feedback to share publicly`;
+    queryString += ` Impress me with your creativity in 1 or 2 lines`;
+    return queryString;
+  };
+
+  const generateFeedback = async (eventName) => {
+    const queryString = constructQueryString(eventName);
+    console.log(queryString);
+    let messages = [{
+      role: "user",
+      content: queryString,
+    }];
+    try {
+      let response;
+      for (let i = 0; i < 5; i++) {
+        response = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo-16k",
+          messages: messages,
+        });
+      }
+      console.log(response);
+      return response;
+  
+    } catch (error) {
+      console.error('Error:', error); // Log error
+      throw error;
+    }
+  };
+
+  const getAiAssistedFeedback = async (eventName) => {
+    const response = await generateFeedback(eventName);
+    console.log(response);
+    console.log(response.choices[0].message.content);
+    var formattedResponse = "";
+
+    if(response!="" && response.choices[0]!=""){
+      formattedResponse = response.choices[0].message.content;
+    }
+    return formattedResponse;
+  };
+
 
   const handleAddEvent = (newEvent) => {
-
-
-    console.log(newEvent);
     // Add the new event to the events array
     const updatedEvents = [...events, newEvent];
-
-    console.log(updatedEvents);
     
     // Update the state with the new events array
     setEvents(updatedEvents);
@@ -183,6 +275,35 @@ const Events = () => {
     // Close the modal after adding the event
     setOpenAddEventModal(false);
   };
+
+  // Function to handle feedback submission
+  const handleFeedbackSubmit = () => {
+    if (feedback.trim() !== '' && selectedEvent) {
+      const eventId = selectedEvent.id; // Assuming each event has a unique ID
+      const eventFeedbackCopy = { ...eventFeedback };
+  
+      // Add feedback for the selected event
+      if (!eventFeedbackCopy[eventId]) {
+        eventFeedbackCopy[eventId] = [];
+      }
+  
+      // Include user's name in the feedback entry
+      const feedbackEntry = `${userNameFromSession}: ${feedback}`;
+  
+      eventFeedbackCopy[eventId].push(feedbackEntry);
+  
+      // Update the state with the new event feedback
+      setEventFeedback(eventFeedbackCopy);
+  
+      // Clear the feedback input
+      setFeedback('');
+    } else {
+      console.error('Feedback cannot be empty or no event selected.');
+    }
+  };
+  
+  
+  
 
   
 
@@ -389,10 +510,87 @@ const Events = () => {
                 </Link>
               ))}
           </Box>
-
-          <Button variant="contained" color="primary" onClick={handleBuyTickets} sx={{ mt: 3, ml: 30 }}>
+          <Box>
+          <Button variant="contained" color="primary" onClick={handleBuyTickets} sx={{ mt: 3, ml: 30, mb: 3}}>
             Buy Tickets
           </Button>
+          </Box>
+         {userRole === 'User' && (
+        <Box marginLeft={2}>
+
+          <Typography variant="h8" color="text.primary"  sx = {{ml: 10}}>
+              Already attended the event? Please provide feedback!
+          </Typography>
+          <textarea
+          rows="4"
+          cols="80"
+          placeholder="Write your feedback here..."
+          style={{ marginTop: '20px' , marginLeft: '20px'}}
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+           />
+           <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: '390px'}}>
+  <Typography variant="body1" color="text.primary">
+    AI Assisted Feedback
+  </Typography>
+  <Switch
+    checked={aiAssistedFeedback}
+    onChange={async () => {
+      setAiAssistedFeedback(!aiAssistedFeedback);
+      if (!aiAssistedFeedback) {
+        const feedbackFromOenAi = await getAiAssistedFeedback(selectedEvent.name);
+        setFeedback(feedbackFromOenAi);
+      } else {
+        setFeedback("");
+      }
+    }}
+    color="primary"
+  />
+</Box>
+  
+         {/* Submit button */}
+         <Button variant="contained" color="primary" style={{ marginTop: '10px' , marginLeft: '240px'}} onClick={handleFeedbackSubmit}>
+            Submit Feedback
+          </Button>
+   
+
+          {/* Feedback section */}
+{/* Feedback section */}
+<Typography variant="h6" color="text.primary" sx={{ mt: 4 }}>
+  Voices from the Crowd!
+</Typography>
+<Box sx={{ mt: 2 }}>
+  {selectedEvent && eventFeedback[selectedEvent.id]?.map((entry, index) => {
+    
+    const feedbackParts = entry.split(':');
+    const name = feedbackParts.shift(); // Extracting the name
+    const feedbackContent = feedbackParts.join(':'); // Joining the remaining parts as feedback content
+    const initials = name.split(' ').map(part => part[0]).join('');
+    const avatarColor = stringToColor(name);
+    return (
+      <Card key={index} variant="outlined" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+        <CardContent sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div>
+            <Typography variant="body1" color="text.primary">
+              {name}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {feedbackContent}
+            </Typography>
+          </div>
+          <Avatar sx={{ bgcolor: avatarColor, marginLeft: '10px' }}>
+            {initials}
+          </Avatar>
+        </CardContent>
+      </Card>
+    );
+  })}
+</Box>
+
+
+          </Box>
+      )}
+
         </Box>
       </Modal>
 
