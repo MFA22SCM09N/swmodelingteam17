@@ -10,6 +10,9 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true,
 });
 
+let markers=[];
+let heapMap;
+
 let displayMap;
 async function getLocation() {
   const response = await fetch("https://ipapi.co/json/");
@@ -134,6 +137,37 @@ async function apiCall(latitude, longitude, q) {
   }
 }
 
+async function getSportEventsCoordinates(currentLocation) {
+  try {
+      if (!currentLocation || !currentLocation.latitude || !currentLocation.longitude) {
+          console.error("Error fetching sport events: Current location data is invalid.");
+          return [];
+      }
+
+      const sportEventResponse = JSON.parse(await fetchPopularEvents("Sports", currentLocation.latitude, currentLocation.longitude, currentLocation.postal, currentLocation.city, "100", "miles", "100"));
+      const formattedSportEvents = sportEventResponse._embedded.events.reduce(
+          (accumulator, event) => {
+              // if (!event.name.toLowerCase().includes('tour')) {
+                  accumulator.push({
+                      name: event.name,
+                      coordinates: {
+                          latitude: parseFloat(event._embedded.venues[0].location.latitude),
+                          longitude: parseFloat(event._embedded.venues[0].location.longitude),
+                      },
+                  });
+              // }
+              return accumulator;
+          },
+          []
+      );
+      console.log("Formatted sport events:", formattedSportEvents);
+      return formattedSportEvents;
+  } catch (error) {
+      console.error("Error fetching sport events:", error);
+      return [];
+  }
+}
+
 // // Example usage
 async function fetchRecommendations(currentLocation) {
   const sportsEvents = await apiCall(currentLocation.latitude, currentLocation.longitude, "Sports Events");
@@ -149,6 +183,7 @@ const RecommendationModal = (props) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [map, setMap] = useState(null);
+  const [sportEventsCoordinates, setSportEventsCoordinates] = useState([]);
 
 
   
@@ -182,10 +217,63 @@ const RecommendationModal = (props) => {
     console.log(props.showRecommendations);
     if(props.showRecommendations){
       console.log('value changed!')
+      setSportEventsCoordinates([]);
       handleClick();
     } else{
       setResponse("");
+      markers.forEach(marker => marker.setMap(null));
+        markers = []
     }}, [props.showRecommendations]);
+
+    useEffect(() => {
+      console.log(sportEventsCoordinates);
+      if(sportEventsCoordinates.length> 0){
+        var heatmapData = [];
+        
+        sportEventsCoordinates.forEach(event => {
+            try {
+    
+                // Fetch coordinates for event location
+                const latitude = event.coordinates.latitude;
+                const longitude = event.coordinates.longitude;
+    
+                const latLng = new window.google.maps.LatLng(latitude, longitude);
+                latLng.weight = 2.0;
+    
+                // Push the LatLng object into the heatmapData array
+                heatmapData.push(latLng);
+    
+                // heatmapData.push(new window.google.maps.LatLng(latitude,longitude));
+    
+            } catch (error) {
+                console.error('Error adding marker:', error);
+            }
+        });
+        console.log(heatmapData);
+        heapMap = new window.google.maps.visualization.HeatmapLayer({
+            data: heatmapData
+          });
+          heapMap.setMap(displayMap);
+      } else {
+        if(heapMap)
+          heapMap.setMap(null);
+      }}, [sportEventsCoordinates]);
+
+    useEffect(() => {
+      console.log(props.showHeatMap);
+      if(props.showHeatMap){
+        const fetchSportEvents = async () => {
+          const events = await getSportEventsCoordinates(currentLocation);
+          console.log("Events:", events);
+          setSportEventsCoordinates(events);
+          return events;
+        };
+        fetchSportEvents();
+        console.log(sportEventsCoordinates);
+        
+      } else{
+        setSportEventsCoordinates([]);
+      }}, [props.showHeatMap]);
 
   const initializeMap = async () => {
 
@@ -268,15 +356,16 @@ const RecommendationModal = (props) => {
           const mapPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
 
           // Add marker
+          markers.push(
           new window.google.maps.Marker({
             position: mapPosition,
-            map: displayMap,
+           
             icon: customMarkerIcon,
             label: {
               text: category.name,
               color: colorCfg
             }
-          });
+          }));
         }
         
       }
@@ -284,6 +373,7 @@ const RecommendationModal = (props) => {
 
     }
     count = 0;
+    markers.forEach(marker => marker.setMap(displayMap));
   }
 
    const handleClick = async () => {

@@ -59,6 +59,7 @@ export default function Features() {
       setShowRecommendations(false);
       setShowHeatMap(false);
     }
+    console.log(showHeatMap);
   };  
 
   const selectedFeature = items[selectedItemIndex];
@@ -277,18 +278,18 @@ export default function Features() {
                     : items[selectedItemIndex].imageDark,
               }}
             /> */}
-            <RecommendationButton showRecommendations={showRecommendations} sx={{
+            <RecommendationButton showRecommendations={showRecommendations} showHeatMap={showHeatMap} sx={{
               height: '100%',
               width: '100%',
               border: '5px solid red',
               
             }} /> 
-            <DisplayHeatMap showHeatMap={showHeatMap} sx={{
+           {/* {selectedItemIndex == 1 && <DisplayHeatMap showHeatMap={showHeatMap} sx={{
               height: '50%',
               width: '50%',
               border: '5px solid blue',
               
-            }}/>
+            }}/> } */}
             
           </Card>
         </Grid>
