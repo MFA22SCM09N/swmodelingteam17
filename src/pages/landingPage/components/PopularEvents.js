@@ -18,7 +18,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddEventModal from './AddEventModal';
-import { fetchPopularEvents , indexEventsToServer} from '../../../components/GetPopularEventsInfo';
+import { fetchPopularEvents , indexEventsToServer, searchEvent} from '../../../components/GetPopularEventsInfo';
 import Avatar from '@mui/material/Avatar';
 import Switch from '@mui/material/Switch';
 import OpenAI from "openai";
@@ -45,7 +45,6 @@ const Events = () => {
   const userNameFromSession = sessionStorage.getItem('firstName') + " " + sessionStorage.getItem('lastName');
 
   const { searchQuery } = useSearchContext();
-  console.log(searchQuery);
 
   const OPENAI_API_KEY='';
 
@@ -157,14 +156,17 @@ function PopularEvents({ searchQuery, setSearchQuery }) {
             []
           );
 
-          // Filter out deleted events for the current user
           const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
           setEvents(filteredEvents);
-          const filteredSearchEvents = formattedSportEvents.filter(event => event.name.toLowerCase().includes(searchQuery.toLowerCase()));
-          setEvents(filteredSearchEvents);
           sessionStorage.setItem('events', JSON.stringify(filteredEvents));
-          //const response = await indexEventsToServer(events);
-         // console.log(response);
+          const response = await indexEventsToServer(filteredEvents);
+          console.log(response);
+          if(searchQuery.trim !== '')
+          {
+            const searchResponse = await searchEvent(searchQuery);
+            setEvents(searchResponse);
+            console.log(searchResponse); 
+          }
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }

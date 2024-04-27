@@ -21,7 +21,6 @@ import PopularEvents from '../components/PopularEvents';
 import { useSearchContext } from '../../../Context/SearchContext';
 
 const userRole = sessionStorage.getItem('userRole');
-console.log(userRole);
 
 
 
@@ -102,7 +101,6 @@ function AppAppBar({ mode, toggleColorMode }) {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      console.log(searchQuery);
       setSearchQuery(e.target.value.trim());
       scrollToSection('events');
     }
