@@ -9,7 +9,6 @@ const app = express();
 
 const { Client } = require("@elastic/elasticsearch");
 
-const app = express();
 const index = "event";
 
 app.use(cors());
