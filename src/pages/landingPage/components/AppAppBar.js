@@ -17,9 +17,13 @@ import CustomImage from '../../../components/signupLogo.jpg';
 import MapsMarker from '../../../components/mapsMarker.png';
 import { styled } from '@mui/system';
 import { useState, useEffect } from 'react';
+import PopularEvents from '../components/PopularEvents';
+import { useSearchContext } from '../../../Context/SearchContext';
 
 const userRole = sessionStorage.getItem('userRole');
 console.log(userRole);
+
+
 
 
 const SearchInput = styled('input')({
@@ -93,12 +97,20 @@ const logoStyle = {
 
 function AppAppBar({ mode, toggleColorMode }) {
   const [open, setOpen] = React.useState(false);
+  const {searchQuery, setSearchQuery} = useSearchContext();
+ 
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      console.log(searchQuery);
+      setSearchQuery(e.target.value.trim());
+      scrollToSection('events');
+    }
+  };
 
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    // Perform sign-out actions if necessary
-    // Then navigate to the sign-in page
     navigate("/");
   };
 
@@ -187,7 +199,7 @@ function AppAppBar({ mode, toggleColorMode }) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection('testimonials')}
+                  onClick={() => scrollToSection('events')}
                   sx={{ py: '6px', px: '12px' }}
                 >
                   <Typography variant="body2" color="text.primary">
@@ -211,7 +223,10 @@ function AppAppBar({ mode, toggleColorMode }) {
                   </Typography>
                 </MenuItem>
 
-                <SearchInput type="text" placeholder="Search for events" />
+                <SearchInput type="text" placeholder="Search for events"
+                value={searchQuery} // Use searchQuery instead of value
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown} />
 
                 <LocationDisplay/>
               </Box>

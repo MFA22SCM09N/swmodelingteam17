@@ -18,10 +18,11 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AddEventModal from './AddEventModal';
-import { fetchPopularEvents } from '../../../components/GetPopularEventsInfo';
+import { fetchPopularEvents , indexEventsToServer} from '../../../components/GetPopularEventsInfo';
 import Avatar from '@mui/material/Avatar';
 import Switch from '@mui/material/Switch';
 import OpenAI from "openai";
+import { useSearchContext } from '../../../Context/SearchContext';
 
 const Events = () => {
   const [location, setLocation] = useState(null);
@@ -41,9 +42,10 @@ const Events = () => {
   const storedFeedback = JSON.parse(sessionStorage.getItem('feedback'));
   const [eventFeedback, setEventFeedback] = useState({});
   const [aiAssistedFeedback, setAiAssistedFeedback] = useState(false);
-
-
   const userNameFromSession = sessionStorage.getItem('firstName') + " " + sessionStorage.getItem('lastName');
+
+  const { searchQuery } = useSearchContext();
+  console.log(searchQuery);
 
   const OPENAI_API_KEY='';
 
@@ -60,6 +62,10 @@ const messages = [
     content: `You are a helpful assistant. Only use the functions you have been provided with.`,
   },
 ];
+
+function PopularEvents({ searchQuery, setSearchQuery }) {
+  console.log(searchQuery);
+};
 
   function stringToColor(string) {
     let hash = 0;
@@ -154,7 +160,11 @@ const messages = [
           // Filter out deleted events for the current user
           const filteredEvents = formattedSportEvents.filter(event => !deletedEvents.includes(event.id));
           setEvents(filteredEvents);
+          const filteredSearchEvents = formattedSportEvents.filter(event => event.name.toLowerCase().includes(searchQuery.toLowerCase()));
+          setEvents(filteredSearchEvents);
           sessionStorage.setItem('events', JSON.stringify(filteredEvents));
+          //const response = await indexEventsToServer(events);
+         // console.log(response);
         } catch (error) {
           console.error('Error fetching Sports information:', error);
         }
@@ -162,7 +172,8 @@ const messages = [
     };
 
     getEvents();
-  }, [location, deletedEvents]);
+  }, [location, deletedEvents, searchQuery]);
+
 
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);

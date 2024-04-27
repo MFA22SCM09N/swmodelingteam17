@@ -6,6 +6,7 @@ import Landing from './pages/landingPage/LandingPage.js';
 import Dashboard from '../src/Dashboard/Dashboard.js';
 import { AccountsProvider } from "./Context/AccountsContext.jsx";
 import { AuthProvider } from "./Context/AuthContext.jsx";
+import { SearchProvider } from './Context/SearchContext.js';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <BrowserRouter>
       <AccountsProvider>
       <AuthProvider>
+       <SearchProvider>
         <Routes>
           <Route
             path="/"
@@ -37,6 +39,7 @@ function App() {
             }
           ></Route>
         </Routes>
+        </SearchProvider>
         </AuthProvider>
         </AccountsProvider>
       </BrowserRouter>
