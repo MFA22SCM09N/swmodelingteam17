@@ -54,7 +54,7 @@ export async function fetchNearbyPlaces(query) {
 
 export async function fetchImage(query) {
     try {
-        const response = await axios.get('http://localhost:5021/serpAPI', {
+        const response = await axios.get('http://localhost:5021/ImageFromSerpAPI', {
             params: { query }
         });
         return response.data;
