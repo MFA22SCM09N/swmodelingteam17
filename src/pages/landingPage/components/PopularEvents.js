@@ -160,8 +160,7 @@ function PopularEvents({ searchQuery, setSearchQuery }) {
           setEvents(filteredEvents);
           sessionStorage.setItem('events', JSON.stringify(filteredEvents));
           const response = await indexEventsToServer(filteredEvents);
-          console.log(response);
-          if(searchQuery.trim !== '')
+          if(searchQuery)
           {
             const searchResponse = await searchEvent(searchQuery);
             setEvents(searchResponse);
