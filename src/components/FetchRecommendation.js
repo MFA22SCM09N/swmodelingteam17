@@ -120,20 +120,41 @@ async function agent(userInput) {
 // Function to fetch events
 async function apiCall(latitude, longitude, q) {
   // call server here
-  const url = `http://localhost:5021/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
-  console.log(url);
+  if(q == "Divvy Events")
+  {
+    let query="restaurants";
+    const url = `http://localhost:5021/serpAPI?latitude=${latitude}&longitude=${longitude}&q=${query}`;
+    console.log(url);
+
   
-  try {
-    const response = await fetch(url);
-    console.log(response);
-    const data = await response.json();
-    console.log( typeof data);
-    const data_ = JSON.parse(data);
-    const sliced = data_._embedded.events.slice(0, 90); // Return top 9
-    return sliced;
-  } catch (error) {
-    console.error('Error fetching results:', error);
-    return [];
+    try {
+      const response = await fetch(url);
+      console.log("serp response",response);
+      const data = await response.json();
+      console.log("serp data", data);
+      console.log("serp data 2", data.local_results.slice(0, 9));
+      return data.local_results.slice(0, 9); // Return top 9 restaurants
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+      return [];
+    }
+  }else{
+
+      const url = `http://localhost:5008/api?latitude=${latitude}&longitude=${longitude}&q=${q}`;
+      console.log(url);
+      
+      try {
+        const response = await fetch(url);
+      console.log(response);
+      const data = await response.json();
+      console.log( typeof data);
+      const data_ = JSON.parse(data);
+      const sliced = data_._embedded.events.slice(0, 90); // Return top 9
+      return sliced;
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      return [];
+    }
   }
 }
 
@@ -169,11 +190,20 @@ async function getSportEventsCoordinates(currentLocation) {
 }
 
 // // Example usage
-async function fetchRecommendations(currentLocation) {
-  const sportsEvents = await apiCall(currentLocation.latitude, currentLocation.longitude, "Sports Events");
-  console.log("Sports Events:");
-  console.log(sportsEvents);
-  return {sportsEvents};
+async function fetchRecommendations(currentLocation, event) {
+  if (event == "divvy")
+  {
+    console.log("divvy Events:");
+    const divvyEvents = await apiCall(currentLocation.latitude, currentLocation.longitude, "Divvy Events");
+    console.log("events divvy", divvyEvents)
+    return divvyEvents;
+    } else {
+
+    const sportsEvents = await apiCall(currentLocation.latitude, currentLocation.longitude, "Sports Events");
+    console.log("Sports Events:");
+    console.log(sportsEvents);
+    return {sportsEvents};
+  }
 }
 
 // Modal To display Google Map and Recommendation based on location and weather
@@ -215,6 +245,7 @@ const RecommendationModal = (props) => {
 
   useEffect(() => {
     console.log(props.showRecommendations);
+    console.log("divvy", props.showDivvyDock);
     if(props.showRecommendations){
       console.log('value changed!')
       setSportEventsCoordinates([]);
@@ -225,39 +256,39 @@ const RecommendationModal = (props) => {
         markers = []
     }}, [props.showRecommendations]);
 
-    useEffect(() => {
-      console.log(sportEventsCoordinates);
-      if(sportEventsCoordinates.length> 0){
-        var heatmapData = [];
-        
-        sportEventsCoordinates.forEach(event => {
-            try {
-    
-                // Fetch coordinates for event location
-                const latitude = event.coordinates.latitude;
-                const longitude = event.coordinates.longitude;
-    
-                const latLng = new window.google.maps.LatLng(latitude, longitude);
-                latLng.weight = 2.0;
-    
-                // Push the LatLng object into the heatmapData array
-                heatmapData.push(latLng);
-    
-                // heatmapData.push(new window.google.maps.LatLng(latitude,longitude));
-    
-            } catch (error) {
-                console.error('Error adding marker:', error);
-            }
+  useEffect(() => {
+    console.log(sportEventsCoordinates);
+    if(sportEventsCoordinates.length> 0){
+      var heatmapData = [];
+      
+      sportEventsCoordinates.forEach(event => {
+          try {
+  
+              // Fetch coordinates for event location
+              const latitude = event.coordinates.latitude;
+              const longitude = event.coordinates.longitude;
+  
+              const latLng = new window.google.maps.LatLng(latitude, longitude);
+              latLng.weight = 2.0;
+  
+              // Push the LatLng object into the heatmapData array
+              heatmapData.push(latLng);
+  
+              // heatmapData.push(new window.google.maps.LatLng(latitude,longitude));
+  
+          } catch (error) {
+              console.error('Error adding marker:', error);
+          }
+      });
+      console.log(heatmapData);
+      heapMap = new window.google.maps.visualization.HeatmapLayer({
+          data: heatmapData
         });
-        console.log(heatmapData);
-        heapMap = new window.google.maps.visualization.HeatmapLayer({
-            data: heatmapData
-          });
-          heapMap.setMap(displayMap);
-      } else {
-        if(heapMap)
-          heapMap.setMap(null);
-      }}, [sportEventsCoordinates]);
+        heapMap.setMap(displayMap);
+    } else {
+      if(heapMap)
+        heapMap.setMap(null);
+    }}, [sportEventsCoordinates]);
 
     useEffect(() => {
       console.log(props.showHeatMap);
@@ -275,6 +306,18 @@ const RecommendationModal = (props) => {
         setSportEventsCoordinates([]);
       }}, [props.showHeatMap]);
 
+      useEffect(() => {
+        console.log(props.showDivvyDock);
+        if(props.showDivvyDock){
+          console.log('implemet divvy dock')
+          // setSportEventsCoordinates([]);
+          handleClick2();
+        } else{
+          setResponse("");
+          markers.forEach(marker => marker.setMap(null));
+            markers = []
+        }}, [props.showDivvyDock]);
+
   const initializeMap = async () => {
 
     const currLocation = await getLocation();
@@ -290,7 +333,8 @@ const RecommendationModal = (props) => {
     }
    
     console.log("my location", typeof currLocation.latitude);
-    const mapCenter = { lat: currLocation.latitude, lng: currLocation.longitude };
+    // const mapCenter = { lat: currLocation.latitude, lng: currLocation.longitude };
+    const mapCenter = { lat: 41.8781, lng: -87.6298 };
     console.log("mapCenter :",mapCenter );
     const mapElement = document.getElementById('google-map');
     console.log("Map element:", mapElement);
@@ -324,64 +368,107 @@ const RecommendationModal = (props) => {
       }
     });
   };
-  const addCategoryResponse = (categoryType) => {
+  const addCategoryResponse = (categoryType, type) => {
     let latitude = 0;
     let longitude = 0;
     let count =0;
 
     // set marker default for sports events
     let colorCfg = 'orange';
-    let customMarkerIcon = { url: 'https://maps.gstatic.com/mapfiles/ms2/micons/sportvenue.png',
-    scaledSize: {
-      width: 40,
-      height: 40
-    }};
-
-    for(let i=0; i< categoryType.length; i++){
-      if(count==9){
-        break;
-      }
-      let category = categoryType[i];
-      if(category._embedded){
-        if(category._embedded.venues[0].location){
-          if (latitude == category._embedded.venues[0].location.latitude && longitude == category._embedded.venues[0].location.longitude){
-            continue;
+    console.log("category response")
+    if(type=="sports"){
+        let customMarkerIcon = { url: 'https://maps.gstatic.com/mapfiles/ms2/micons/sportvenue.png',
+        scaledSize: {
+          width: 40,
+          height: 40
+        }};
+        for(let i=0; i< categoryType.length; i++){
+          if(count==9){
+            break;
+        }
+        let category = categoryType[i];
+        if(category._embedded){
+          if(category._embedded.venues[0].location){
+            if (latitude == category._embedded.venues[0].location.latitude && longitude == category._embedded.venues[0].location.longitude){
+              continue;
+            }
+            latitude = category._embedded.venues[0].location.latitude;
+            longitude = category._embedded.venues[0].location.longitude;
+            // console.log(count);
+            console.log(parseFloat(latitude));
+            console.log(parseFloat(longitude));
+            console.log(category.name);
+            const mapPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+            
+            // Add marker
+            markers.push(
+              new window.google.maps.Marker({
+                position: mapPosition,
+                
+              icon: customMarkerIcon,
+              label: {
+                text: category.name,
+                color: colorCfg
+              }
+            }));
           }
-          latitude = category._embedded.venues[0].location.latitude;
-          longitude = category._embedded.venues[0].location.longitude;
-          // console.log(count);
-          console.log(parseFloat(latitude));
-          console.log(parseFloat(longitude));
-          console.log(category.name);
-          const mapPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+          
+        }
+        count = count + 1;
+        
+      }
+      count = 0;
+      markers.forEach(marker => marker.setMap(displayMap));
+    } else
+    {
+        console.log("divvy")
 
-          // Add marker
+        let customMarkerIcon = { url: 'http://maps.gstatic.com/mapfiles/markers2/markerD.png',
+        scaledSize: {
+          width: 40,
+          height: 40
+        }};
+        console.log("array length of", categoryType)
+
+        console.log("length", categoryType.length)
+        for(let i=0; i< categoryType.length; i++){
+
+        let category = categoryType[i];
+        latitude = category.gps_coordinates.latitude;
+        longitude = category.gps_coordinates.longitude;
+        const mapPosition = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+        console.log(latitude, longitude);
+        // Add marker
           markers.push(
-          new window.google.maps.Marker({
-            position: mapPosition,
-           
+            new window.google.maps.Marker({
+              position: mapPosition,
+              
             icon: customMarkerIcon,
             label: {
               text: category.name,
               color: colorCfg
             }
           }));
-        }
         
       }
-      count = count + 1;
-
+      markers.forEach(marker => marker.setMap(displayMap));
     }
-    count = 0;
-    markers.forEach(marker => marker.setMap(displayMap));
   }
-
-   const handleClick = async () => {
+  
+  const handleClick = async () => {
     // setOpen(true);
     console.log(currentLocation);
     
-    let {sportsEvents} = await fetchRecommendations(currentLocation);
-    addCategoryResponse(sportsEvents);
+    let {sportsEvents} = await fetchRecommendations(currentLocation, "events");
+    addCategoryResponse(sportsEvents, "sports");
+  };
+
+  const handleClick2 = async () => {
+    // setOpen(true);
+    console.log(currentLocation);
+    
+    let divvyResponse = await fetchRecommendations(currentLocation, "divvy");
+    addCategoryResponse(divvyResponse, "divvy");
   };
 
   const handleClose = () => {
