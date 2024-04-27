@@ -123,8 +123,9 @@ async function apiCall(latitude, longitude, q) {
   if(q == "Divvy Events")
   {
     let query="restaurants";
-    const url = `http://localhost:5008/serpAPI?latitude=${latitude}&longitude=${longitude}&q=${query}`;
+    const url = `http://localhost:5021/serpAPI?latitude=${latitude}&longitude=${longitude}&q=${query}`;
     console.log(url);
+
   
     try {
       const response = await fetch(url);
