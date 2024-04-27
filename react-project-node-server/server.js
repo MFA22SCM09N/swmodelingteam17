@@ -3,8 +3,13 @@ const request = require('request');
 const cors = require("cors");
 const port = 5009;
 const axios = require("axios");
+const { getJson}  =  require("serpapi");
+const util = require('util');
+
+
 
 const app = express();
+
 app.use(cors());
 
 app.get('/api', function(req, res) {
@@ -70,7 +75,7 @@ app.get('/getPopularEvents', async (req, res) => {
       if (!error && response.statusCode == 200) {
         res.json(body);
         // res.send(body);
-        console.log(body);
+        // console.log(body);
       } 
       else {
         // res.send(error);
@@ -80,19 +85,24 @@ app.get('/getPopularEvents', async (req, res) => {
 });
 
 app.get('/serpAPI', async (req, res) => {
-  const { query } = req.query;
+  const { latitude, longitude, q } = req.query;
+  console.log(latitude, longitude, q);
+  lat=41.8781;
+  long=-87.6298;
   try {
-      const response = await axios.get('https://serpapi.com/search', {
-          params: {
-              api_key: '4be963ddff0381b89ed90767cf3708977ca5c8351a1de6c000441b57fca939fc',
-              engine: 'google_images',
-              type: 'search',
-              q: query,
-              limit: 1 
-          }
-      });
-      res.json(response.data);
-  console.log(res);
+
+    getJson({
+        api_key: "4be963ddff0381b89ed90767cf3708977ca5c8351a1de6c000441b57fca939fc",
+        engine: "google_maps",
+        q: q,
+        google_domain: "google.com",
+        ll: `@${lat},${long},14z`,
+        type: "search",
+        hl: "en",
+    }, (results) => {
+        res.json(results);
+        console.log(util.inspect(results, {depth: null, colors: true}));
+    });
   } catch (error) {
       console.error('Error fetching image:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -118,7 +128,6 @@ app.get('/getNearbyPlacesInfo', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 
 app.listen(port, function() {

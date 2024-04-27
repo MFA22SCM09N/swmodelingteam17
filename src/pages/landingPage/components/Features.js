@@ -46,18 +46,22 @@ export default function Features() {
   var [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
   var [showRecommendations, setShowRecommendations] = React.useState(false);
   var [showHeatMap, setShowHeatMap] = React.useState(false);
+  var [showDivvyDock, setShowDivvyDockMap] = React.useState(false);
   const handleItemClick = (index) => {
     setSelectedItemIndex(index);
     console.log(index);
     if(index === 0){
       setShowRecommendations(true);
       setShowHeatMap(false);
+      setShowDivvyDockMap(false);
     } else if(index === 1){
       setShowHeatMap(true);
       setShowRecommendations(false); 
+      setShowDivvyDockMap(false);
     } else {
       setShowRecommendations(false);
       setShowHeatMap(false);
+      setShowDivvyDockMap(true);
     }
     console.log(showHeatMap);
   };  
@@ -278,7 +282,8 @@ export default function Features() {
                     : items[selectedItemIndex].imageDark,
               }}
             /> */}
-            <RecommendationButton showRecommendations={showRecommendations} showHeatMap={showHeatMap} sx={{
+            <RecommendationButton showRecommendations={showRecommendations} showHeatMap={showHeatMap} 
+            showDivvyDock={showDivvyDock} sx={{
               height: '100%',
               width: '100%',
               border: '5px solid red',
